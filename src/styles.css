@@ -23,25 +23,6 @@
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.app[data-theme="dark"] {
-  color-scheme: dark;
-  --canvas: #07091c;
-  --rail: rgba(14, 18, 48, 0.92);
-  --surface: #12163a;
-  --ink: #f7f8fc;
-  --copy: #c5cbe8;
-  --tertiary: #8e96bd;
-  --line: rgba(255, 255, 255, 0.1);
-  --fill: #1b214d;
-  --fill-2: #2a3270;
-  --green: #ffcc00;
-  --green-pill: #010066;
-  --peach: #ff4d4f;
-  --track: #2a3166;
-  --gold: #ffcc00;
-  --shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
-}
-
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; min-height: 100%; }
 body {
@@ -117,16 +98,7 @@ b { font-weight: 650; }
   padding: 6px 8px; border: 0; border-radius: 16px; background: transparent; text-align: left;
 }
 .user-name { flex: 1; font-weight: 600; }
-.rail-theme { display: none; }
-.rail-btn {
-  width: 44px; height: 44px; border: 0; border-radius: 50%;
-  background: transparent; color: var(--ink); display: grid; place-items: center;
-}
-.rail-btn.is-soft { background: #eef1f6; }
-.app[data-theme="dark"] .rail-btn.is-soft { background: #2a3166; color: #fff; }
-
 .app[data-collapsed="true"] .sidebar { align-items: center; padding: 12px 8px 10px; }
-.app[data-collapsed="true"] .rail-theme { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-bottom: 8px; }
 .app[data-collapsed="true"] .brand,
 .app[data-collapsed="true"] .brand-sub,
 .app[data-collapsed="true"] .nav-item span,
@@ -142,9 +114,6 @@ b { font-weight: 650; }
 .app[data-collapsed="true"] .nav-item.is-active {
   background: var(--flag-blue); color: #fff;
   box-shadow: none;
-}
-.app[data-theme="dark"][data-collapsed="true"] .nav-item.is-active {
-  background: var(--flag-yellow); color: var(--flag-blue);
 }
 .app[data-collapsed="true"] .popover {
   left: 72px; right: auto; bottom: 48px; width: 240px;
@@ -234,17 +203,7 @@ b { font-weight: 650; }
     linear-gradient(180deg, #f7f8fd 0%, #fffdf6 100%);
   color: #10122a;
 }
-.app[data-theme="dark"] .wallet-inner {
-  background:
-    radial-gradient(90% 80% at 12% 0%, rgba(1, 0, 102, 0.85), transparent 60%),
-    radial-gradient(70% 60% at 92% 18%, rgba(204, 0, 1, 0.35), transparent 52%),
-    radial-gradient(50% 40% at 70% 100%, rgba(255, 204, 0, 0.22), transparent 60%),
-    linear-gradient(180deg, #14183f 0%, #1a1030 100%);
-  color: #f7f8fc;
-}
 .kicker { color: #5c6488; font-size: 13px; }
-.app[data-theme="dark"] .kicker,
-.app[data-theme="dark"] .wallet-inner .icon-btn { color: #c5cbe8; }
 .wallet-id { margin-top: 2px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
 .wallet-top { display: flex; justify-content: space-between; gap: 12px; }
 .wallet-balance {
@@ -266,8 +225,6 @@ b { font-weight: 650; }
 .coin-plus {
   background: #fff; color: var(--flag-blue); border-color: #d5daf0; margin-left: 8px; font-size: 20px;
 }
-.app[data-theme="dark"] .coin { border-color: #1a2148; }
-.app[data-theme="dark"] .coin-plus { background: #10163a; color: var(--flag-yellow); }
 
 .pill {
   display: inline-flex; align-items: center;
@@ -371,10 +328,6 @@ select {
 .rate-bar { height: 8px; border-radius: 99px; background: #e7eef2; overflow: hidden; }
 .rate-bar > span { display: block; height: 100%; border-radius: inherit; background: #2bbfa0; }
 .rate-note { color: #8b93a7; font-size: 13px; line-height: 1.4; text-align: left; }
-.app[data-theme="dark"] .rate-bar { background: #2a3166; }
-.app[data-theme="dark"] .rate-delta.is-up { color: #3ddea4; }
-.app[data-theme="dark"] .rate-note,
-.app[data-theme="dark"] .rate-chevron { color: #9aa6c8; }
 .adun-top { display: flex; justify-content: space-between; gap: 8px; }
 .adun-top > span:first-child { min-width: 0; }
 .adun-dun, .quiet { display: block; color: var(--tertiary); font-size: 13px; }
@@ -397,13 +350,8 @@ select {
 .tone-mid { color: #2a3a88; }
 .tone-warm { color: #8a6d00; }
 .tone-low { color: var(--flag-red); }
-.app[data-theme="dark"] .tone-good { color: #9eb0ff; }
-.app[data-theme="dark"] .tone-mid { color: #b7c2f0; }
-.app[data-theme="dark"] .tone-warm { color: var(--flag-yellow); }
-.app[data-theme="dark"] .tone-low { color: #ff8a8a; }
 .trend { display: inline-flex; color: var(--copy); }
 .trend-up { color: var(--flag-blue); }
-.app[data-theme="dark"] .trend-up { color: #9eb0ff; }
 .tag {
   display: inline-flex; align-items: center; min-height: 22px;
   padding: 2px 8px; border-radius: 999px; background: var(--fill); color: var(--copy); font-size: 12px; font-weight: 650;

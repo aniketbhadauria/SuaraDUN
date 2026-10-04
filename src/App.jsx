@@ -126,11 +126,11 @@ function Wallet({ totalSiap, pctSiap, onOpen, onCopy, copied }) {
         </div>
       </div>
       <div className="wallet-actions">
-        <Button type="button" variant="secondary" className="h-[52px] rounded-[18px]" onClick={() => onOpen("adun")}>
+        <Button type="button" variant="secondary" className="h-13 rounded-[18px]" onClick={() => onOpen("adun")}>
           <Icon name="swap" size={18} />
           Semua ADUN
         </Button>
-        <Button type="button" variant="secondary" className="h-[52px] rounded-[18px]" onClick={() => onOpen("kritikal")}>
+        <Button type="button" variant="secondary" className="h-13 rounded-[18px]" onClick={() => onOpen("kritikal")}>
           <Icon name="send" size={18} />
           Kritikal
         </Button>
@@ -257,7 +257,6 @@ export default function App() {
   const [sort, setSort] = useState("dun");
   const [view, setView] = useState("grid");
   const [selected, setSelected] = useState(null);
-  const [theme, setTheme] = useState("light");
   const [copied, setCopied] = useState(false);
   const [done, setDone] = useState(() => new Set());
   const [collapsed, setCollapsed] = useState(true);
@@ -331,34 +330,14 @@ export default function App() {
     });
   };
 
-  const ink = theme === "dark" ? "#8e96bd" : "#6d7596";
-  const grid = theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(1,0,102,0.08)";
+  const ink = "#6d7596";
+  const grid = "rgba(1,0,102,0.08)";
 
   return (
     <TooltipProvider>
-    <div className={`app${theme === "dark" ? " dark" : ""}`} data-theme={theme} data-collapsed={collapsed ? "true" : "false"}>
+    <div className="app" data-collapsed={collapsed ? "true" : "false"}>
       <a className="skip" href="#kandungan">Langkau ke kandungan</a>
       <aside className="sidebar" aria-label="Menu">
-        <div className="rail-theme" role="group" aria-label="Paparan">
-          <button
-            type="button"
-            className={theme === "light" ? "rail-btn is-soft" : "rail-btn"}
-            aria-pressed={theme === "light"}
-            aria-label="Paparan cerah"
-            onClick={() => setTheme("light")}
-          >
-            <Icon name="sun" size={18} />
-          </button>
-          <button
-            type="button"
-            className={theme === "dark" ? "rail-btn is-soft" : "rail-btn"}
-            aria-pressed={theme === "dark"}
-            aria-label="Paparan gelap"
-            onClick={() => setTheme("dark")}
-          >
-            <Icon name="moon" size={18} />
-          </button>
-        </div>
         <div className="brand">
           <button type="button" className="brand-name" onClick={() => go("overview")}>myDUN.</button>
           <span className="brand-mark" aria-hidden="true"><Icon name="square" size={16} /></span>
@@ -417,9 +396,6 @@ export default function App() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => openAdun(ALL_ADUN.find((a) => a.isMB))}>Lihat DUN Machap</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}>
-                {theme === "light" ? "Paparan gelap" : "Paparan cerah"}
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <button
@@ -440,9 +416,6 @@ export default function App() {
           <span>myDUN.</span>
           <button type="button" onClick={() => go("bantuan")}>Bantuan</button>
           <button type="button" onClick={() => go("panduan")}>Panduan</button>
-          <button type="button" onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}>
-            {theme === "light" ? "Gelap" : "Cerah"}
-          </button>
         </div>
         <header className="page-head">
           <h1>{TITLES[tab]}</h1>
