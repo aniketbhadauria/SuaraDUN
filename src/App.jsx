@@ -178,13 +178,23 @@ function AdunCard({ a, onOpen }) {
   );
 }
 
+function AdunAvatar({ a }) {
+  const fallbackClass = a.isMB
+    ? "avatar avatar-photo size-10 text-xs font-bold"
+    : `avatar avatar-${a.parti} size-10`;
+  const label = a.isMB ? "OH" : a.parti.slice(0, 1);
+  return (
+    <Avatar className="size-10 shrink-0">
+      <AvatarFallback className={fallbackClass}>{label}</AvatarFallback>
+    </Avatar>
+  );
+}
+
 function AdunRow({ a, onOpen }) {
   const pct = pctOf(a);
   return (
     <button type="button" className="cell" onClick={() => onOpen(a)}>
-      <Avatar className="size-10">
-        <AvatarFallback className={`avatar avatar-${a.parti} size-10`}>{a.parti.slice(0, 1)}</AvatarFallback>
-      </Avatar>
+      <AdunAvatar a={a} />
       <span className="cell-copy">
         <span className="cell-title">{a.isMB ? "Menteri Besar · " : ""}{a.nama}</span>
         <span className="cell-sub">{a.dun} · {a.div}</span>
@@ -421,6 +431,7 @@ export default function App() {
           <h1>{TITLES[tab]}</h1>
         </header>
 
+        <div key={tab} className="view-body">
         {tab === "overview" && (
           <div className="stack">
             <div className="hero">
@@ -501,9 +512,9 @@ export default function App() {
                     <Icon name="arrow" size={18} />
                   </button>
                 </div>
-                {top5.slice(0, 3).map((a, i) => (
+                {top5.slice(0, 3).map((a) => (
                   <button key={a.id} type="button" className="rec" onClick={() => openAdun(a)}>
-                    <span className="rec-icon"><Icon name={["star", "mic", "play"][i]} size={18} /></span>
+                    <AdunAvatar a={a} />
                     <span>
                       <span className="cell-title">{shortName(a.nama)}</span>
                       <small>{a.dun} · rating {a.rating.toFixed(1)}</small>
@@ -822,6 +833,7 @@ export default function App() {
             </dl>
           </section>
         )}
+        </div>
       </main>
 
       <nav className="tabbar" aria-label="Utama">
