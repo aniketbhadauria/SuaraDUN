@@ -1,0 +1,67 @@
+/**
+ * Motion layer — follows design-motion-principles_SKILL.md
+ * Context: SaaS dashboard (Emil: speed/restraint · Jakub: subtle polish)
+ * Animate transform/opacity only; respect prefers-reduced-motion.
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .main {
+    transition: margin-left var(--motion-ui) var(--ease-out);
+  }
+
+  .sidebar {
+    transition: width var(--motion-ui) var(--ease-out);
+  }
+
+  .view-body {
+    animation: view-enter var(--motion-ui) var(--ease-out) both;
+  }
+
+  /* Occasional actions — light press feedback (not hover-scale spam) */
+  .nav-item:active,
+  .user:active,
+  .brand-logo-btn:active,
+  .mb-banner-action:active,
+  .tabbar button:active,
+  .rail-toggle:active,
+  .mobile-head-logo:active,
+  .mobile-head button:active {
+    transform: scale(0.98);
+  }
+
+  .nav-item,
+  .user,
+  .brand-logo-btn,
+  .rail-toggle,
+  .mobile-head-logo,
+  .mobile-head button {
+    transition:
+      background-color var(--motion-fast) var(--ease-out),
+      color var(--motion-fast) var(--ease-out),
+      border-color var(--motion-fast) var(--ease-out),
+      transform var(--motion-fast) var(--ease-out);
+  }
+
+  /* Radix overlays: origin-aware, under 300ms (Emil) */
+  [data-slot="dropdown-menu-content"],
+  [data-slot="tooltip-content"] {
+    animation-duration: 150ms !important;
+  }
+}
+
+@keyframes view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-body {
+    animation: none;
+  }
+}

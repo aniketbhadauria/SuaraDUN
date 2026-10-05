@@ -7,6 +7,7 @@ import "@fontsource/poppins/600.css";
 import App from "./App.jsx";
 import "./index.css";
 import "./styles.css";
+import "./motion.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

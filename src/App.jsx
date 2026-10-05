@@ -683,7 +683,7 @@ function DetailSheet({ adun, onClose }) {
 export default function App() {
   const [tab, setTab] = useState("pengundi");
   const [selected, setSelected] = useState(null);
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
 
   const openAdun = (a) => setSelected(a);
   const go = (id) => setTab(id);
@@ -697,8 +697,9 @@ export default function App() {
       <a className="skip" href="#kandungan">Langkau ke kandungan</a>
       <aside className="sidebar" aria-label="Menu">
         <div className="brand">
-          <button type="button" className="brand-name" onClick={() => go("pengundi")}>myDUN.</button>
-          <span className="brand-mark" aria-hidden="true"><Icon name="building" size={16} /></span>
+          <button type="button" className="brand-logo-btn" onClick={() => go("pengundi")} aria-label="DUN — laman utama">
+            <img src="/dun-logo.png" alt="DUN" className="brand-logo" width={128} height={40} />
+          </button>
         </div>
         <p className="brand-sub">{MACHAP.dunShort} · byDUN</p>
         <nav className="nav" aria-label="Utama">
@@ -724,7 +725,7 @@ export default function App() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button type="button" className="user" aria-label="Onn H.">
-                <Avatar className="size-10 ring-2 ring-background">
+                <Avatar className="size-7 ring-2 ring-background md:size-7">
                   <AvatarImage src={MB_AVATAR_SRC} alt="Onn Hafiz" />
                   <AvatarFallback className="bg-[#010066] text-[#ffcc00] text-xs font-bold">OH</AvatarFallback>
                 </Avatar>
@@ -756,7 +757,10 @@ export default function App() {
 
       <main className="main" id="kandungan">
         <div className="mobile-head">
-          <span>{MACHAP.dunShort}</span>
+          <button type="button" className="mobile-head-logo" onClick={() => go("pengundi")} aria-label="DUN — laman utama">
+            <img src="/dun-logo.png" alt="" className="brand-logo" width={96} height={30} />
+          </button>
+          <span className="mobile-head-dun">{MACHAP.dunShort}</span>
           <button type="button" onClick={() => go("bantuan")}>Bantuan</button>
         </div>
         <MbBanner onOpen={openAdun} />
