@@ -192,6 +192,90 @@ export function Icon({ name, size = 20 }) {
           <path d="m10 9-3.5 3L10 15" />
         </svg>
       );
+    case "box":
+      return (
+        <svg {...p}>
+          <path d="M4 8.5 12 4l8 4.5V18a1 1 0 0 1-.6.9L12 21l-7.4-2.1A1 1 0 0 1 4 18V8.5Z" />
+          <path d="M12 4v17M4 8.5l8 4.5 8-4.5" />
+        </svg>
+      );
+    case "dna":
+      return (
+        <svg {...p}>
+          <path d="M6 4c3 4 3 12 0 16M18 4c-3 4-3 12 0 16" />
+          <path d="M7.5 8h9M7.5 16h9M8.5 12h7" />
+        </svg>
+      );
+    case "file":
+      return (
+        <svg {...p}>
+          <path d="M8 4h6l4 4v12a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" />
+          <path d="M14 4v4h4" />
+        </svg>
+      );
+    case "megaphone":
+      return (
+        <svg {...p}>
+          <path d="M5 10v4h3l5 4V6L8 10H5Z" />
+          <path d="M16.5 8.5a4.5 4.5 0 0 1 0 7" />
+        </svg>
+      );
+    case "flame":
+      return (
+        <svg {...p}>
+          <path d="M12 3.5c1.2 2.2 3.5 3.4 3.5 6.2a5.5 5.5 0 1 1-11 0c0-2.8 2.3-4 3.5-6.2.4 1.4 1.5 2.3 2 2.3s1.6-.9 2-2.3Z" />
+        </svg>
+      );
+    case "crane":
+      return (
+        <svg {...p}>
+          <path d="M5 19h14M8 19V9l4-3 4 3v10" />
+          <path d="M6 9h12M12 6v3" />
+        </svg>
+      );
+    case "heart":
+      return (
+        <svg {...p}>
+          <path d="M12 20.5S4.5 15.2 4.5 9.8a4.3 4.3 0 0 1 7.5-2.9A4.3 4.3 0 0 1 19.5 9.8c0 5.4-7.5 10.7-7.5 10.7Z" />
+        </svg>
+      );
+    case "building":
+      return (
+        <svg {...p}>
+          <path d="M5 20V8l7-4 7 4v12" />
+          <path d="M9 12h2v2H9zM13 12h2v2h-2zM9 16h2v2H9zM13 16h2v2h-2z" />
+        </svg>
+      );
+    case "road":
+      return (
+        <svg {...p}>
+          <path d="M4 18 8 6h2l4 12M14 6h2l4 12" />
+          <path d="M7 14h10" />
+        </svg>
+      );
+    case "market":
+      return (
+        <svg {...p}>
+          <path d="M4 10h16l-1.2 8H5.2L4 10Z" />
+          <path d="M8 10V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3" />
+        </svg>
+      );
+    case "coins":
+      return (
+        <svg {...p}>
+          <ellipse cx="9" cy="9" rx="5" ry="2.5" />
+          <path d="M4 9v5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V9" />
+          <ellipse cx="15" cy="13" rx="5" ry="2.5" />
+          <path d="M10 13v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5v-4" />
+        </svg>
+      );
+    case "farm":
+      return (
+        <svg {...p}>
+          <path d="M4 19h16M6 19V11l6-5 6 5v8" />
+          <path d="M10 19v-4h4v4" />
+        </svg>
+      );
     default:
       return null;
   }

@@ -82,3 +82,146 @@ export function shortName(nama) {
     .replace(/\s+a\/l\s+.*/i, "")
     .replace(/\s+bin\s+.*/i, "");
 }
+
+/** Ringkasan DUN N26 Machap (rujukan papan pemuka byDUN) */
+export const MACHAP = {
+  dun: "N26 Machap",
+  dunShort: "N26 · Machap",
+  parlimen: "P127 Labis",
+  pengundi: 28412,
+  sokonganBn: 62.6,
+  aduan2024: 440,
+  pctSelesai: 91.6,
+  projekAktif: 5,
+  hotspot: 6,
+  penerimaBantuan: 2669,
+  programAktif: 6,
+  berdaftarSpr: 26104,
+  belumDaftar: 2308,
+  keluarPrn23: 82.6,
+  keluarPrn18: 75.4,
+  keluarPrn13: 71.2,
+  wanita: 49.4,
+  lelaki: 50.6,
+};
+
+export const TURNOUT_HISTORY = [
+  { label: "PRN '13", pct: 71.2 },
+  { label: "PRN '18", pct: 75.4 },
+  { label: "PRN '23", pct: 82.6 },
+];
+
+/** Trend sokongan undi majoriti — N26 Machap (peratus undi popular) */
+/** Volum aduan bulanan DUN N26 Machap, Jan–Jun 2024 */
+export const MACHAP_ADUAN_MONTHLY = [
+  { bln: "Jan", aduan: 42, selesai: 38, terbuka: 4 },
+  { bln: "Feb", aduan: 55, selesai: 50, terbuka: 5 },
+  { bln: "Mac", aduan: 70, selesai: 64, terbuka: 6 },
+  { bln: "Apr", aduan: 85, selesai: 78, terbuka: 7 },
+  { bln: "Mei", aduan: 75, selesai: 69, terbuka: 6 },
+  { bln: "Jun", aduan: 90, selesai: 83, terbuka: 7 },
+];
+
+export const ADUAN_CATEGORIES = [
+  { label: "Jalan Kampung", count: 118, color: "#cc0001", icon: "road" },
+  { label: "Kebersihan Pasar", count: 97, color: "#e87830", icon: "market" },
+  { label: "Bantuan Kewangan", count: 88, color: "#e6b800", icon: "coins" },
+  { label: "Pertanian & Tanah", count: 66, color: "#1a9e62", icon: "farm" },
+  { label: "Perumahan PPR", count: 44, color: "#2bbfa0", icon: "building" },
+  { label: "Lain-lain", count: 27, color: "#8b6fd4", icon: "file" },
+];
+
+/** Kawasan hotspot isu — N26 Machap */
+/** Agihan bantuan — N26 Machap */
+export const BANTUAN_RINGKASAN = {
+  jumlahDiagih: "RM 661k",
+  jenisBantuan: 5,
+  pctDiagih: 97,
+};
+
+export const BANTUAN_PROGRAM = [
+  { id: 1, jenis: "Bantuan Sara Hidup (BSH)", penerima: 1240, jumlah: "RM 372k", status: "Diagih", statusKey: "done" },
+  { id: 2, jenis: "Bantuan OKU", penerima: 88, jumlah: "RM 44k", status: "Diagih", statusKey: "done" },
+  { id: 3, jenis: "Biasiswa Pelajar N26", penerima: 142, jumlah: "RM 71k", status: "Diagih", statusKey: "done" },
+  { id: 4, jenis: "Bantuan Warga Emas", penerima: 312, jumlah: "RM 93.6k", status: "Diagih", statusKey: "done" },
+  { id: 5, jenis: "Tabung Bencana/Banjir", penerima: 67, jumlah: "RM 80.4k", status: "Berterusan", statusKey: "ongoing" },
+];
+
+/** Program komuniti — N26 Machap */
+export const MACHAP_PROGRAM = [
+  { id: 1, nama: "Klinik Komuniti ADUN Machap", kekerapan: "Bulanan", peserta: 680, kategori: "Kesihatan", kategoriKey: "health", status: "Aktif" },
+  { id: 2, nama: "Dialog MB Bersama Rakyat Machap", kekerapan: "Suku", peserta: 340, kategori: "Engagement", kategoriKey: "engagement", status: "Aktif" },
+  { id: 3, nama: "Skim Biasiswa Yayasan Johor N26", kekerapan: "Tahunan", peserta: 142, kategori: "Pendidikan", kategoriKey: "education", status: "Aktif" },
+  { id: 4, nama: "Program Pemerkasaan Agro Machap", kekerapan: "Setahun", peserta: 480, kategori: "Pertanian", kategoriKey: "agriculture", status: "Aktif" },
+  { id: 5, nama: "Kursus Kemahiran GIATMARA Johor", kekerapan: "Suku", peserta: 120, kategori: "Ekonomi", kategoriKey: "economy", status: "Aktif" },
+  { id: 6, nama: "Tabung Kebajikan MB Johor N26", kekerapan: "Berterusan", peserta: 820, kategori: "Kebajikan", kategoriKey: "welfare", status: "Aktif" },
+];
+
+/** Projek pembangunan — N26 Machap */
+export const MACHAP_PROJEK = [
+  {
+    id: 1,
+    nama: "Naik taraf Jalan Kg. Machap Baru — Fasa 2",
+    peruntukan: "RM 2.4j",
+    status: "Dalam Proses",
+    progress: 55,
+    phase: "progress",
+  },
+  {
+    id: 2,
+    nama: "Klinik Desa Bukit Berak (Pembinaan Baru)",
+    peruntukan: "RM 1.1j",
+    status: "Dalam Proses",
+    progress: 38,
+    phase: "progress",
+  },
+  {
+    id: 3,
+    nama: "Taman Permainan & Rekreasi Kota Machap",
+    peruntukan: "RM 480k",
+    status: "Selesai",
+    progress: 100,
+    phase: "done",
+  },
+];
+
+export const HOTSPOT_AREAS = [
+  { id: 1, nama: "Kg. Machap Baru", isu: "Jalan kampung rosak teruk", aduan: 54, status: "Kritikal", level: "critical" },
+  { id: 2, nama: "Taman Kota Machap", isu: "Bekalan air tidak menentu", aduan: 41, status: "Tinggi", level: "high" },
+  { id: 3, nama: "Kg. Bukit Berak", isu: "Tanah runtuh musim hujan", aduan: 37, status: "Tinggi", level: "high" },
+  { id: 4, nama: "Estet Machap Umboo", isu: "Kemudahan warga emas terhad", aduan: 28, status: "Sederhana", level: "mid" },
+  { id: 5, nama: "Pasar Machap", isu: "Sistem longkang limpah", aduan: 22, status: "Sederhana", level: "mid" },
+];
+
+export const SUPPORT_TREND = [
+  { prn: "PRN13 '13", bn: 58.4, ph: 38.2 },
+  { prn: "PRN14 '18", bn: 44.8, ph: 51.0 },
+  { prn: "PRN15 '23", bn: 62.6, ph: 35.1 },
+];
+
+export const ETHNIC_COMPOSITION = [
+  { name: "Melayu/Bumiputera", pct: 61.8, color: "#1a9e62" },
+  { name: "Cina", pct: 32.4, color: "#e6b800" },
+  { name: "India", pct: 5.1, color: "#e87830" },
+  { name: "Lain-lain", pct: 0.7, color: "#8b6fd4" },
+];
+
+/** Bilangan pengundi mengikut kumpulan umur — N26 Machap */
+export const AGE_DISTRIBUTION = [
+  { group: "18-20", count: 1548, firstTime: true },
+  { group: "21-29", count: 4120, firstTime: false },
+  { group: "30-39", count: 6650, firstTime: false },
+  { group: "40-49", count: 6012, firstTime: false },
+  { group: "50-59", count: 5120, firstTime: false },
+  { group: "60+", count: 4962, firstTime: false },
+];
+
+/** Prestasi petugas — N26 Machap (Jun 2024) */
+export const PETUGAS = [
+  { id: 1, nama: "Ahmad Firdaus", peranan: "Ketua Petugas", aduan: 186, pctSiap: 95, hadir: 98, rating: 4.8 },
+  { id: 2, nama: "Siti Nurhaliza", peranan: "Koordinator", aduan: 142, pctSiap: 94, hadir: 96, rating: 4.7 },
+  { id: 3, nama: "Raj Kumar", peranan: "Penyelaras Aduan", aduan: 128, pctSiap: 91, hadir: 94, rating: 4.6 },
+  { id: 4, nama: "Farah Izzati", peranan: "Pegawai Program", aduan: 98, pctSiap: 89, hadir: 92, rating: 4.5 },
+  { id: 5, nama: "Hafiz Rahman", peranan: "Pegawai Projek", aduan: 86, pctSiap: 88, hadir: 90, rating: 4.4 },
+  { id: 6, nama: "Nurul Ain", peranan: "Pegawai Komuniti", aduan: 74, pctSiap: 87, hadir: 88, rating: 4.3 },
+];

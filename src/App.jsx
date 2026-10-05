@@ -1,58 +1,53 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart,
+  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import {
   Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tooltip as Hint } from "@/components/ui/tooltip";
 import {
-  ALL_ADUN, DIVISI, PARTI_LIST, PARTI_SEATS, STATE_TREND,
-  fmt, pctOf, pctTone, rTone, shortName,
+  ADUAN_CATEGORIES, AGE_DISTRIBUTION, ALL_ADUN, BANTUAN_PROGRAM, BANTUAN_RINGKASAN, ETHNIC_COMPOSITION,
+  HOTSPOT_AREAS, MACHAP, MACHAP_PROGRAM, MACHAP_PROJEK,
+  MACHAP_ADUAN_MONTHLY, PETUGAS, SUPPORT_TREND, TURNOUT_HISTORY,
+  fmt, pctOf, pctTone,
 } from "./data.js";
+import { CardMarker } from "./components/CardMarker.jsx";
+import { LabeledProgress } from "./components/LabeledProgress.jsx";
 import { Icon } from "./icons.jsx";
 
 const NAV = [
-  { id: "overview", label: "Gambaran", icon: "home" },
-  { id: "adun", label: "ADUN", icon: "people" },
-  { id: "ranking", label: "Ranking", icon: "chart" },
-  { id: "kritikal", label: "Kritikal", icon: "alert" },
-  { id: "bahagian", label: "Bahagian", icon: "map" },
+  { id: "pengundi", label: "Pengundi", icon: "box" },
+  { id: "demografi", label: "Demografi", icon: "dna" },
+  { id: "sokongan", label: "Sokongan", icon: "file" },
+  { id: "aduan", label: "Aduan", icon: "megaphone" },
+  { id: "hotspot", label: "Hotspot", icon: "flame" },
+  { id: "projek", label: "Projek", icon: "crane" },
+  { id: "bantuan", label: "Bantuan", icon: "heart" },
+  { id: "program", label: "Program", icon: "building" },
+  { id: "petugas", label: "Petugas", icon: "star" },
 ];
 
-const TITLES = {
-  overview: "Gambaran",
-  adun: "ADUN",
-  ranking: "Ranking",
-  kritikal: "Kritikal",
-  bahagian: "Bahagian",
-  bantuan: "Bantuan",
-  panduan: "Panduan",
-};
+const TITLES = Object.fromEntries(NAV.map(({ id, label }) => [id, label]));
 
-const SORTS = [
-  ["dun", "No. DUN"],
-  ["rating", "Rating"],
-  ["aduan", "Aduan"],
-  ["siap", "% selesai"],
+const KPI_ITEMS = [
+  { icon: "box", value: () => fmt(MACHAP.pengundi), label: "Pengundi DUN" },
+  { icon: "chart", value: () => `${MACHAP.sokonganBn}%`, label: "Sokongan BN" },
+  { icon: "megaphone", value: () => fmt(MACHAP.aduan2024), label: "Aduan 2024" },
+  { icon: "check", value: () => `${MACHAP.pctSelesai}%`, label: "% Selesai" },
+  { icon: "crane", value: () => String(MACHAP.projekAktif), label: "Projek Aktif" },
+  { icon: "flame", value: () => String(MACHAP.hotspot), label: "Hotspot" },
+  { icon: "heart", value: () => fmt(MACHAP.penerimaBantuan), label: "Penerima Bantuan" },
+  { icon: "building", value: () => String(MACHAP.programAktif), label: "Program Aktif" },
 ];
-
-const sum = (rows, key) => rows.reduce((s, a) => s + a[key], 0);
 
 function Tip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -99,111 +94,525 @@ function Trend({ value }) {
   );
 }
 
-function Wallet({ totalSiap, pctSiap, onOpen, onCopy, copied }) {
+function KpiStrip() {
   return (
-    <section className="wallet" aria-label="Ringkasan kerajaan negeri">
-      <div className="wallet-inner">
-        <div className="wallet-top">
-          <div>
-            <p className="kicker">Kerajaan negeri</p>
-            <p className="wallet-id">YAB Onn Hafiz · N26 Machap</p>
-          </div>
-          <Button type="button" variant="ghost" size="icon" onClick={onCopy} aria-label={copied ? "Ringkasan disalin" : "Salin ringkasan"}>
-            <Icon name={copied ? "check" : "copy"} size={18} />
-          </Button>
+    <div className="kpi-strip" aria-label="Petunjuk utama DUN">
+      {KPI_ITEMS.map((item) => (
+        <div key={item.label} className="kpi">
+          <span className="kpi-icon" aria-hidden="true"><Icon name={item.icon} size={18} /></span>
+          <span className="kpi-val">{item.value()}</span>
+          <span className="kpi-label">{item.label}</span>
         </div>
-        <p className="wallet-balance">{fmt(totalSiap)}</p>
-        <div className="wallet-foot">
-          <div className="coins" aria-label="UMNO 37, MCA 8, MIC 3">
-            <span className="coin coin-umno">UM</span>
-            <span className="coin coin-mca">MC</span>
-            <span className="coin coin-mic">MI</span>
-            <button type="button" className="coin coin-plus" onClick={() => onOpen("bahagian")} aria-label="Lihat bahagian">
-              +
-            </button>
-          </div>
-          <span className="pill">{pctSiap}%</span>
+      ))}
+    </div>
+  );
+}
+
+function MbBanner({ onOpen }) {
+  const mb = ALL_ADUN.find((a) => a.isMB);
+  return (
+    <section className="mb-banner mb-banner-top" aria-label="Profil YAB Menteri Besar">
+      <Avatar className="size-14 shrink-0">
+        <AvatarFallback className="bg-[#010066] text-[#ffcc00] text-sm font-bold">OH</AvatarFallback>
+      </Avatar>
+      <div className="mb-banner-copy">
+        <p className="mb-banner-name">YAB Dato&apos; Onn Hafiz bin Ghazi</p>
+        <p className="mb-banner-role">
+          Menteri Besar Johor · {MACHAP.dun} · {MACHAP.parlimen}
+        </p>
+        <div className="mb-banner-tags">
+          <Badge variant="secondary" className="border-transparent bg-[#fff4c2] text-[#6b5400]">MB Johor</Badge>
+          <Badge variant="secondary" className="border-transparent bg-[var(--fill)] text-[var(--copy)]">{MACHAP.dun}</Badge>
+          <Badge variant="secondary" className="border-transparent bg-[var(--fill)] text-[var(--copy)]">{MACHAP.parlimen}</Badge>
         </div>
       </div>
-      <div className="wallet-actions">
-        <Button type="button" variant="secondary" className="h-13 rounded-[18px]" onClick={() => onOpen("adun")}>
-          <Icon name="swap" size={18} />
-          Semua ADUN
+      {mb ? (
+        <Button type="button" variant="outline" className="mb-banner-action h-10 shrink-0 rounded-xl px-4" onClick={() => onOpen(mb)}>
+          Profil DUN
         </Button>
-        <Button type="button" variant="secondary" className="h-13 rounded-[18px]" onClick={() => onOpen("kritikal")}>
-          <Icon name="send" size={18} />
-          Kritikal
-        </Button>
-      </div>
+      ) : null}
     </section>
   );
 }
 
-function AdunCard({ a, onOpen }) {
-  const pct = pctOf(a);
-  const up = a.trend === "up";
+function RadialGauge({ pct, label, tone = "default" }) {
   return (
-    <Card
-      role="button"
-      tabIndex={0}
-      className={`adun-card cursor-pointer gap-3.5 rounded-[22px] border-0 py-4 shadow-[0_12px_32px_rgba(28,39,64,0.08)] ring-0 ${a.isMB ? "is-mb" : ""}`}
-      onClick={() => onOpen(a)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onOpen(a);
-        }
-      }}
-    >
-      <CardHeader className="rate-head px-4">
-        <CardTitle className="rate-title">{a.dun}</CardTitle>
-        <span className="rate-chevron" aria-hidden="true"><Icon name="chevron" size={16} /></span>
-      </CardHeader>
-      <CardContent className="grid gap-3.5 px-4">
-        <span className="rate-figure">
-          <span className="rate-num">{pct}%</span>
-          <span className={up ? "rate-delta is-up" : "rate-delta"}>{up ? "↗" : "→"} {a.rating.toFixed(1)}</span>
-          <Tag parti={a.parti}>{a.parti}</Tag>
-        </span>
-        <Progress
-          value={pct}
-          aria-label={`${pct}% selesai`}
-          className="h-2 bg-[#e7eef2] [&_[data-slot=progress-indicator]]:bg-[#2bbfa0]"
-        />
-        <CardDescription className="rate-note">
-          {a.nama}{a.isMB ? " · Menteri Besar" : ""} · {a.aduan} aduan · {a.hotspot} hotspot · {a.prog} program
-        </CardDescription>
-      </CardContent>
-    </Card>
+    <div className="gauge-wrap">
+      <div className={tone === "warm" ? "gauge is-warm" : "gauge"} style={{ "--pct": pct }} aria-hidden="true">
+        <span>{pct}%</span>
+      </div>
+      <small>{label}</small>
+    </div>
   );
 }
 
-function AdunAvatar({ a }) {
-  const fallbackClass = a.isMB
-    ? "avatar avatar-photo size-10 text-xs font-bold"
-    : `avatar avatar-${a.parti} size-10`;
-  const label = a.isMB ? "OH" : a.parti.slice(0, 1);
+function DemografiPage({ ink, grid }) {
+  const ageColors = (row) => (row.firstTime ? "#e6b800" : "#1a9e62");
+
   return (
-    <Avatar className="size-10 shrink-0">
-      <AvatarFallback className={fallbackClass}>{label}</AvatarFallback>
-    </Avatar>
+    <div className="stack demografi-page">
+      <KpiStrip />
+      <header className="section-page-head">
+        <Icon name="dna" size={22} />
+        <div>
+          <h2 className="section-page-title">Demografi Pengundi</h2>
+          <p className="quiet">Komposisi etnik &amp; usia — {MACHAP.dun}</p>
+        </div>
+      </header>
+      <div className="split demografi-panels">
+        <section className="card demografi-panel" aria-labelledby="etnik-heading">
+          <p id="etnik-heading" className="panel-kicker">Komposisi etnik</p>
+          <div className="ethnic-layout">
+            <div className="chart donut" role="img" aria-label="Carta komposisi etnik pengundi">
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={ETHNIC_COMPOSITION}
+                    dataKey="pct"
+                    nameKey="name"
+                    innerRadius={52}
+                    outerRadius={78}
+                    stroke="none"
+                  >
+                    {ETHNIC_COMPOSITION.map((e) => <Cell key={e.name} fill={e.color} />)}
+                  </Pie>
+                  <Tooltip formatter={(v) => [`${v}%`, "Peratus"]} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <ul className="ethnic-bars">
+              {ETHNIC_COMPOSITION.map((e) => (
+                <li key={e.name}>
+                  <div className="ethnic-bar-head">
+                    <span>{e.name}</span>
+                    <b>{e.pct}%</b>
+                  </div>
+                  <div className="ethnic-bar-track">
+                    <span style={{ width: `${e.pct}%`, background: e.color }} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+        <section className="card demografi-panel" aria-labelledby="usia-heading">
+          <p id="usia-heading" className="panel-kicker">Taburan usia pengundi</p>
+          <div className="chart">
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={AGE_DISTRIBUTION} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+                <CartesianGrid stroke={grid} vertical={false} />
+                <XAxis dataKey="group" tick={{ fill: ink, fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: ink, fontSize: 11 }} axisLine={false} tickLine={false} width={40} />
+                <Tooltip
+                  formatter={(v) => [fmt(v), "Pengundi"]}
+                  labelFormatter={(l) => `Umur ${l}`}
+                />
+                <Bar dataKey="count" name="Pengundi" radius={[6, 6, 0, 0]}>
+                  {AGE_DISTRIBUTION.map((row) => (
+                    <Cell key={row.group} fill={ageColors(row)} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="chart-legend" aria-hidden="true">
+            <span><i className="swatch swatch-first" /> Pengundi Pertama</span>
+            <span><i className="swatch swatch-age" /> Lain-lain</span>
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }
 
-function AdunRow({ a, onOpen }) {
-  const pct = pctOf(a);
+function SokonganPage({ ink, grid }) {
+  const pct = (v) => `${v}%`;
+
   return (
-    <button type="button" className="cell" onClick={() => onOpen(a)}>
-      <AdunAvatar a={a} />
-      <span className="cell-copy">
-        <span className="cell-title">{a.isMB ? "Menteri Besar · " : ""}{a.nama}</span>
-        <span className="cell-sub">{a.dun} · {a.div}</span>
-      </span>
-      <span className="cell-trail">
-        <span className={`tone-${rTone(a.rating)}`}>{a.rating.toFixed(1)}</span>
-        <span className="cell-sub">{pct}%</span>
-      </span>
-    </button>
+    <div className="stack sokongan-page">
+      <KpiStrip />
+      <header className="section-page-head">
+        <Icon name="chart" size={22} />
+        <div>
+          <h2 className="section-page-title">Trend Sokongan DUN</h2>
+          <p className="quiet">
+            Keputusan PRN historik {MACHAP.dun} — BN/UMNO menang PRN15 2023
+          </p>
+        </div>
+      </header>
+      <section className="card sokongan-chart-panel" aria-label="Trend sokongan mengikut PRN">
+        <div className="chart">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={SUPPORT_TREND} margin={{ left: 0, right: 16, top: 12, bottom: 8 }}>
+              <CartesianGrid stroke={grid} vertical={false} />
+              <XAxis dataKey="prn" tick={{ fill: ink, fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis
+                domain={[0, 100]}
+                tickFormatter={pct}
+                tick={{ fill: ink, fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+                width={44}
+              />
+              <Tooltip formatter={(v) => [`${v}%`, ""]} labelFormatter={(l) => l} />
+              <Legend
+                verticalAlign="bottom"
+                align="center"
+                iconType="circle"
+                formatter={(value) => (value === "bn" ? "BN/UMNO" : "PH/PKR")}
+              />
+              <Line
+                type="monotone"
+                dataKey="bn"
+                name="bn"
+                stroke="#e6b800"
+                strokeWidth={2.5}
+                dot={{ r: 5, fill: "#e6b800", strokeWidth: 0 }}
+                activeDot={{ r: 6 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="ph"
+                name="ph"
+                stroke="#cc0001"
+                strokeWidth={2.5}
+                dot={{ r: 5, fill: "#cc0001", strokeWidth: 0 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="sokongan-summary" role="list">
+          {SUPPORT_TREND.map((row) => (
+            <div key={row.prn} className="sokongan-summary-card" role="listitem">
+              <span className="quiet">{row.prn}</span>
+              <b>{row.bn}%</b>
+              <span className="sokongan-summary-party">BN/UMNO</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+const ADUAN_CAT_MAX = ADUAN_CATEGORIES[0].count;
+
+function AduanPage({ ink, grid }) {
+  return (
+    <div className="stack aduan-page">
+      <KpiStrip />
+      <header className="section-page-head">
+        <Icon name="megaphone" size={22} />
+        <div>
+          <h2 className="section-page-title">Aduan Rakyat</h2>
+          <p className="quiet">Jan–Jun 2024 — kawasan {MACHAP.dun}</p>
+        </div>
+      </header>
+      <div className="split demografi-panels">
+        <section className="card demografi-panel" aria-labelledby="volum-aduan-heading">
+          <p id="volum-aduan-heading" className="panel-kicker">Volum aduan bulanan</p>
+          <div className="chart">
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={MACHAP_ADUAN_MONTHLY} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+                <CartesianGrid stroke={grid} vertical={false} />
+                <XAxis dataKey="bln" tick={{ fill: ink, fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  domain={[0, 100]}
+                  tick={{ fill: ink, fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={36}
+                />
+                <Tooltip content={<Tip />} />
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
+                  iconType="circle"
+                  formatter={(value) => (value === "selesai" ? "Selesai" : "Belum selesai")}
+                />
+                <Bar dataKey="selesai" name="selesai" stackId="vol" fill="#1a9e62" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="terbuka" name="terbuka" stackId="vol" fill="#e85d75" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+        <section className="card demografi-panel" aria-labelledby="kategori-aduan-heading">
+          <p id="kategori-aduan-heading" className="panel-kicker">Kategori aduan</p>
+          <ul className="aduan-categories">
+            {ADUAN_CATEGORIES.map((cat) => (
+              <li key={cat.label}>
+                <span className="aduan-cat-icon" style={{ color: cat.color }} aria-hidden="true">
+                  <Icon name={cat.icon} size={20} />
+                </span>
+                <div className="aduan-cat-body">
+                  <div className="ethnic-bar-head">
+                    <span>{cat.label}</span>
+                    <b style={{ color: cat.color }}>{cat.count}</b>
+                  </div>
+                  <div className="ethnic-bar-track">
+                    <span style={{ width: `${(cat.count / ADUAN_CAT_MAX) * 100}%`, background: cat.color }} />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function BantuanPage() {
+  const summary = [
+    { icon: "people", label: "Penerima Bantuan", value: fmt(MACHAP.penerimaBantuan), tone: "blue" },
+    { icon: "coins", label: "Jumlah Diagih", value: BANTUAN_RINGKASAN.jumlahDiagih, tone: "gold", highlight: true },
+    { icon: "file", label: "Jenis Bantuan", value: String(BANTUAN_RINGKASAN.jenisBantuan), tone: "green" },
+    { icon: "check", label: "% Diagih", value: `${BANTUAN_RINGKASAN.pctDiagih}%`, tone: "ink" },
+  ];
+
+  return (
+    <div className="stack bantuan-page">
+      <KpiStrip />
+      <header className="section-page-head">
+        <Icon name="heart" size={22} />
+        <div>
+          <h2 className="section-page-title">Agihan Bantuan</h2>
+          <p className="quiet">Rekod bantuan &amp; kebajikan — kawasan {MACHAP.dun} 2024</p>
+        </div>
+      </header>
+      <div className="bantuan-summary">
+        {summary.map((item) => (
+          <div key={item.label} className={`bantuan-summary-card is-${item.tone}${item.highlight ? " is-highlight" : ""}`}>
+            <span className="bantuan-summary-icon" aria-hidden>
+              <Icon name={item.icon} size={22} />
+            </span>
+            <b>{item.value}</b>
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      <section className="bantuan-panel" aria-label="Senarai bantuan">
+        <div className="bantuan-table-wrap">
+          <table className="bantuan-table">
+            <thead>
+              <tr>
+                <th scope="col">Jenis Bantuan</th>
+                <th scope="col">Penerima</th>
+                <th scope="col">Jumlah</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BANTUAN_PROGRAM.map((row) => (
+                <tr key={row.id}>
+                  <td className="bantuan-jenis">{row.jenis}</td>
+                  <td className="bantuan-penerima">{fmt(row.penerima)}</td>
+                  <td className="bantuan-jumlah">{row.jumlah}</td>
+                  <td>
+                    <span className={`bantuan-status is-${row.statusKey}`}>{row.status}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+const PETUGAS_MEDAL = ["gold", "silver", "bronze"];
+
+function PetugasPage() {
+  const rows = [...PETUGAS].sort((a, b) => b.pctSiap - a.pctSiap || b.rating - a.rating);
+
+  return (
+    <div className="stack petugas-page">
+      <KpiStrip />
+      <header className="section-page-head">
+        <Icon name="star" size={22} />
+        <div>
+          <h2 className="section-page-title">Prestasi Petugas</h2>
+          <p className="quiet">Penilaian Jun 2024 — kawasan DUN {MACHAP.dun.split(" ")[0]}</p>
+        </div>
+      </header>
+      <section className="petugas-panel" aria-label="Jadual prestasi petugas">
+        <div className="petugas-table-wrap">
+          <table className="petugas-table">
+            <thead>
+              <tr>
+                <th scope="col">Nama</th>
+                <th scope="col">Peranan</th>
+                <th scope="col">Aduan</th>
+                <th scope="col">% Siap</th>
+                <th scope="col">Hadir</th>
+                <th scope="col">Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((p, i) => {
+                const rank = i + 1;
+                const medal = PETUGAS_MEDAL[i];
+                const siapTone = p.pctSiap >= 95 ? "high" : "mid";
+                return (
+                  <tr key={p.id}>
+                    <td className="petugas-nama">
+                      {medal ? (
+                        <span className={`petugas-medal is-${medal}`} aria-label={`Kedudukan ${rank}`} />
+                      ) : (
+                        <span className="petugas-medal-spacer" aria-hidden />
+                      )}
+                      <span>{p.nama}</span>
+                    </td>
+                    <td className="petugas-peranan">{p.peranan}</td>
+                    <td className="petugas-aduan">{fmt(p.aduan)}</td>
+                    <td className="petugas-siap">
+                      <div
+                        className="petugas-siap-track"
+                        role="progressbar"
+                        aria-valuenow={p.pctSiap}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${p.pctSiap}% siap`}
+                      >
+                        <span className={`petugas-siap-fill is-${siapTone}`} style={{ width: `${p.pctSiap}%` }} />
+                      </div>
+                      <b>{p.pctSiap}%</b>
+                    </td>
+                    <td className="petugas-hadir">{p.hadir}%</td>
+                    <td className="petugas-rating">
+                      {p.rating.toFixed(1)}
+                      <Icon name="star" size={14} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProgramPage() {
+  return (
+    <div className="stack program-page">
+      <KpiStrip />
+      <header className="section-page-head">
+        <Icon name="building" size={22} />
+        <div>
+          <h2 className="section-page-title">Program Komuniti</h2>
+          <p className="quiet">Program aktif ADUN {MACHAP.dun} 2024</p>
+        </div>
+      </header>
+      <section className="program-panel" aria-label="Senarai program">
+        <div className="program-table-wrap">
+          <table className="program-table">
+            <thead>
+              <tr>
+                <th scope="col">Program</th>
+                <th scope="col">Kekerapan</th>
+                <th scope="col">Peserta</th>
+                <th scope="col">Kategori</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {MACHAP_PROGRAM.map((row) => (
+                <tr key={row.id}>
+                  <td className="program-nama">{row.nama}</td>
+                  <td className="program-kekerapan">{row.kekerapan}</td>
+                  <td className="program-peserta">{fmt(row.peserta)}</td>
+                  <td>
+                    <span className={`program-cat is-${row.kategoriKey}`}>{row.kategori}</span>
+                  </td>
+                  <td>
+                    <span className="program-status is-active">{row.status}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProjekPage() {
+  return (
+    <div className="stack projek-page">
+      <KpiStrip />
+      <header className="section-page-head">
+        <Icon name="crane" size={22} />
+        <div>
+          <h2 className="section-page-title">Projek Pembangunan Negeri</h2>
+          <p className="quiet">Peruntukan &amp; status projek DUN {MACHAP.dun} 2024</p>
+        </div>
+      </header>
+      <ol className="projek-list" aria-label="Senarai projek">
+        {MACHAP_PROJEK.map((p) => (
+          <li key={p.id}>
+            <article className="surface-card projek-card">
+              <div className="surface-card-header">
+                <CardMarker variant="projek" />
+                <span className={`surface-card-status is-${p.phase}`}>{p.status}</span>
+              </div>
+              <div className="surface-card-divider" />
+              <div className="surface-card-body">
+                <h3 className="surface-card-title">{p.nama}</h3>
+                <p className="surface-card-note">Peruntukan &amp; kemajuan projek {MACHAP.dun}</p>
+                <div className="chip-row">
+                  <span className="chip-tag is-budget">{p.peruntukan}</span>
+                  <span className="chip-tag">#pembangunan</span>
+                </div>
+              </div>
+              <div className="surface-card-divider" />
+              <LabeledProgress
+                label="Kemajuan"
+                value={p.progress}
+                tone={p.phase === "done" ? "success" : "warn"}
+              />
+            </article>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function HotspotPage() {
+  return (
+    <div className="stack hotspot-page">
+      <KpiStrip />
+      <header className="section-page-head">
+        <Icon name="flame" size={22} />
+        <div>
+          <h2 className="section-page-title">Kawasan Hotspot Isu</h2>
+          <p className="quiet">Kawasan prioriti berdasarkan aduan — {MACHAP.dun}</p>
+        </div>
+      </header>
+      <ol className="hotspot-list">
+        {HOTSPOT_AREAS.map((area, i) => (
+          <li key={area.id}>
+            <article className={`hotspot-item hotspot-item-${area.level}`}>
+              <span className="hotspot-rank" aria-label={`Kedudukan ${i + 1}`}>{i + 1}</span>
+              <div className="hotspot-copy">
+                <span className="hotspot-name">{area.nama}</span>
+                <span className="hotspot-isu">{area.isu}</span>
+              </div>
+              <div className="hotspot-metric">
+                <b>{area.aduan}</b>
+                <span>aduan</span>
+              </div>
+              <span className={`hotspot-status is-${area.level}`}>{area.status}</span>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 
@@ -241,11 +650,11 @@ function DetailSheet({ adun, onClose }) {
               ))}
             </div>
             <div className="sheet-progress px-4">
-              <div className="row-between">
-                <span>Kadar penyelesaian</span>
-                <b className={`tone-${pctTone(pct)}`}>{pct}%</b>
-              </div>
-              <Progress value={pct} aria-label={`${pct}% selesai`} className="h-2" />
+              <LabeledProgress
+                label="Kadar penyelesaian"
+                value={pct}
+                tone={pct >= 95 ? "success" : pct >= 88 ? "default" : "warn"}
+              />
             </div>
             <dl className="facts px-4">
               <div><dt>Bahagian</dt><dd>{adun.div}</dd></div>
@@ -260,85 +669,12 @@ function DetailSheet({ adun, onClose }) {
 }
 
 export default function App() {
-  const [tab, setTab] = useState("overview");
-  const [search, setSearch] = useState("");
-  const [divisi, setDivisi] = useState("Semua");
-  const [parti, setParti] = useState("Semua");
-  const [sort, setSort] = useState("dun");
-  const [view, setView] = useState("grid");
+  const [tab, setTab] = useState("pengundi");
   const [selected, setSelected] = useState(null);
-  const [copied, setCopied] = useState(false);
-  const [done, setDone] = useState(() => new Set());
   const [collapsed, setCollapsed] = useState(true);
-
-  const totals = useMemo(() => {
-    const aduan = sum(ALL_ADUN, "aduan");
-    const siap = sum(ALL_ADUN, "siap");
-    const hotspot = sum(ALL_ADUN, "hotspot");
-    const prog = sum(ALL_ADUN, "prog");
-    const projek = sum(ALL_ADUN, "projek");
-    const rating = (sum(ALL_ADUN, "rating") / ALL_ADUN.length).toFixed(2);
-    return { aduan, siap, hotspot, prog, projek, rating, pct: Math.round((siap / aduan) * 100) };
-  }, []);
-
-  const june = STATE_TREND[5];
-  const may = STATE_TREND[4];
-  const delta = {
-    n: june.selesai - may.selesai,
-    pct: (((june.selesai - may.selesai) / may.selesai) * 100).toFixed(1),
-  };
-  const juneOpen = june.aduan - june.selesai;
-
-  const filtered = useMemo(() => {
-    let d = [...ALL_ADUN];
-    const q = search.trim().toLowerCase();
-    if (q) d = d.filter((a) => a.nama.toLowerCase().includes(q) || a.dun.toLowerCase().includes(q));
-    if (divisi !== "Semua") d = d.filter((a) => a.div === divisi);
-    if (parti !== "Semua") d = d.filter((a) => a.parti === parti);
-    if (sort === "rating") d.sort((a, b) => b.rating - a.rating);
-    if (sort === "aduan") d.sort((a, b) => b.aduan - a.aduan);
-    if (sort === "siap") d.sort((a, b) => b.siap / b.aduan - a.siap / a.aduan);
-    if (sort === "dun") d.sort((a, b) => a.id - b.id);
-    return d;
-  }, [search, divisi, parti, sort]);
-
-  const ranked = useMemo(() => [...ALL_ADUN].sort((a, b) => b.rating - a.rating || b.siap / b.aduan - a.siap / a.aduan), []);
-  const top5 = ranked.slice(0, 5);
-  const bot5 = ranked.slice(-5).reverse();
-  const critical = useMemo(() => ALL_ADUN.filter((a) => a.hotspot >= 3).sort((a, b) => b.hotspot - a.hotspot || b.aduan - a.aduan), []);
-
-  const byDiv = useMemo(() => DIVISI.slice(1).map((d) => {
-    const members = ALL_ADUN.filter((a) => a.div === d);
-    return {
-      div: d,
-      label: d.length > 11 ? `${d.slice(0, 10)}…` : d,
-      aduan: sum(members, "aduan"),
-      adun: members.length,
-    };
-  }).filter((d) => d.aduan > 0).sort((a, b) => b.aduan - a.aduan), []);
 
   const openAdun = (a) => setSelected(a);
   const go = (id) => setTab(id);
-
-  const copySummary = async () => {
-    const text = `Johor: ${fmt(totals.siap)} aduan selesai (${totals.pct}%). ${fmt(delta.n)} lebih selesai pada Jun berbanding Mei.`;
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      /* clipboard may be blocked; the button state still confirms the attempt */
-    }
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
-  };
-
-  const toggleDone = (id) => {
-    setDone((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
 
   const ink = "#6d7596";
   const grid = "rgba(1,0,102,0.08)";
@@ -349,10 +685,10 @@ export default function App() {
       <a className="skip" href="#kandungan">Langkau ke kandungan</a>
       <aside className="sidebar" aria-label="Menu">
         <div className="brand">
-          <button type="button" className="brand-name" onClick={() => go("overview")}>myDUN.</button>
-          <span className="brand-mark" aria-hidden="true"><Icon name="square" size={16} /></span>
+          <button type="button" className="brand-name" onClick={() => go("pengundi")}>myDUN.</button>
+          <span className="brand-mark" aria-hidden="true"><Icon name="building" size={16} /></span>
         </div>
-        <p className="brand-sub">Julai 2026 · PRN ke-16</p>
+        <p className="brand-sub">{MACHAP.dunShort} · byDUN</p>
         <nav className="nav" aria-label="Utama">
           {NAV.map((item) => (
             <Hint key={item.id}>
@@ -373,22 +709,6 @@ export default function App() {
           ))}
         </nav>
         <div className="side-foot">
-          <Hint>
-            <TooltipTrigger asChild>
-              <button type="button" className={tab === "bantuan" ? "nav-item is-active" : "nav-item"} aria-label="Bantuan" onClick={() => go("bantuan")}>
-                <Icon name="help" /><span>Bantuan</span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right" hidden={!collapsed}>Bantuan</TooltipContent>
-          </Hint>
-          <Hint>
-            <TooltipTrigger asChild>
-              <button type="button" className={tab === "panduan" ? "nav-item is-active" : "nav-item"} aria-label="Panduan" onClick={() => go("panduan")}>
-                <Icon name="book" /><span>Panduan</span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right" hidden={!collapsed}>Panduan</TooltipContent>
-          </Hint>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button type="button" className="user" aria-label="Onn H.">
@@ -423,416 +743,91 @@ export default function App() {
 
       <main className="main" id="kandungan">
         <div className="mobile-head">
-          <span>myDUN.</span>
+          <span>{MACHAP.dunShort}</span>
           <button type="button" onClick={() => go("bantuan")}>Bantuan</button>
-          <button type="button" onClick={() => go("panduan")}>Panduan</button>
         </div>
-        <header className="page-head">
-          <h1>{TITLES[tab]}</h1>
-        </header>
+        <MbBanner onOpen={openAdun} />
+        {tab !== "demografi" && tab !== "sokongan" && tab !== "aduan" && tab !== "hotspot" && tab !== "projek" && tab !== "bantuan" && tab !== "program" && tab !== "petugas" ? (
+          <header className="page-head">
+            <h1>{TITLES[tab]}</h1>
+          </header>
+        ) : null}
 
         <div key={tab} className="view-body">
-        {tab === "overview" && (
+        {tab === "pengundi" && (
           <div className="stack">
-            <div className="hero">
-              <Wallet
-                totalSiap={totals.siap}
-                pctSiap={totals.pct}
-                onOpen={go}
-                onCopy={copySummary}
-                copied={copied}
-              />
-              <section className="card earn">
-                <div className="row-between">
-                  <h2>Aduan Jun</h2>
-                  <span className="quiet">2024</span>
+            <KpiStrip />
+            <section className="card">
+              <h2>Statistik Pengundi</h2>
+              <div className="stat4" style={{ marginTop: 16 }}>
+                <div className="stat4-card">
+                  <b>{fmt(MACHAP.pengundi)}</b>
+                  <span>Jumlah Pengundi</span>
                 </div>
-                <p className="earn-value">{fmt(june.selesai)}</p>
-                <p className="earn-compare">
-                  {fmt(delta.n)} selesai berbanding Mei
-                  <span className="pill">↗ {delta.pct}%</span>
-                </p>
-                <div
-                  className="split-bar"
-                  role="img"
-                  aria-label={`Jun: ${fmt(june.selesai)} selesai dan ${fmt(juneOpen)} masih terbuka daripada ${fmt(june.aduan)} aduan`}
-                >
-                  <span style={{ flex: june.selesai }} />
-                  <span style={{ flex: juneOpen }} />
+                <div className="stat4-card">
+                  <b>{fmt(MACHAP.berdaftarSpr)}</b>
+                  <span>Berdaftar SPR</span>
                 </div>
-                <div className="legend">
-                  <span><i className="swatch swatch-done" /> Selesai <b>{fmt(june.selesai)}</b></span>
-                  <span><i className="swatch swatch-open" /> Terbuka <b>{fmt(juneOpen)}</b></span>
+                <div className="stat4-card">
+                  <b>{fmt(MACHAP.belumDaftar)}</b>
+                  <span>Belum Daftar Est.</span>
                 </div>
-                <dl className="quiet-stats">
-                  <div><dt>ADUN BN</dt><dd>48</dd></div>
-                  <div><dt>UMNO / MCA / MIC</dt><dd>37 / 8 / 3</dd></div>
-                  <div><dt>Hotspot</dt><dd>{totals.hotspot}</dd></div>
-                  <div><dt>Purata rating</dt><dd>{totals.rating}</dd></div>
-                </dl>
-              </section>
-            </div>
-
-            <div className="split">
-              <section className="card">
-                <div className="row-between">
-                  <h2>Perlu dibuat</h2>
-                  <button type="button" className="text-btn" onClick={() => go("kritikal")} aria-label="Lihat kawasan kritikal">
-                    <Icon name="arrow" size={18} />
-                  </button>
+                <div className="stat4-card">
+                  <b>{MACHAP.keluarPrn23}%</b>
+                  <span>Keluar PRN &apos;23</span>
                 </div>
-                <div className="tasks">
-                  {critical.slice(0, 4).map((a) => {
-                    const checked = done.has(a.id);
-                    return (
-                      <div key={a.id} className="task">
-                        <button
-                          type="button"
-                          className={checked ? "check is-on" : "check"}
-                          aria-pressed={checked}
-                          aria-label={checked ? `Tanda semula ${a.dun}` : `Tanda ${a.dun} sudah disemak`}
-                          onClick={() => toggleDone(a.id)}
-                        >
-                          {checked ? <Icon name="check" size={14} /> : null}
-                        </button>
-                        <button type="button" className="task-copy" onClick={() => openAdun(a)}>
-                          <span>Semak {a.hotspot} hotspot di {a.dun.replace(/^N\d+\s/, "")}</span>
-                          <small>{shortName(a.nama)} · {a.aduan - a.siap} aduan masih terbuka</small>
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-              <section className="recommend">
-                <div className="row-between">
-                  <h2>Disyorkan</h2>
-                  <button type="button" className="text-btn" onClick={() => go("ranking")} aria-label="Lihat ranking">
-                    <Icon name="arrow" size={18} />
-                  </button>
-                </div>
-                {top5.slice(0, 3).map((a) => (
-                  <button key={a.id} type="button" className="rec" onClick={() => openAdun(a)}>
-                    <AdunAvatar a={a} />
-                    <span>
-                      <span className="cell-title">{shortName(a.nama)}</span>
-                      <small>{a.dun} · rating {a.rating.toFixed(1)}</small>
-                    </span>
-                  </button>
-                ))}
-              </section>
-            </div>
-
+              </div>
+            </section>
             <div className="charts">
-              <section className="card" role="img" aria-label="Trend aduan masuk dan selesai, Januari hingga Jun 2024">
-                <h2>Trend aduan</h2>
-                <p className="quiet">Januari hingga Jun 2024</p>
-                <div className="chart">
-                  <ResponsiveContainer width="100%" height={210}>
-                    <AreaChart data={STATE_TREND} margin={{ left: 0, right: 8, top: 12, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="masuk" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#cc0001" stopOpacity={0.28} />
-                          <stop offset="100%" stopColor="#cc0001" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="siap" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#010066" stopOpacity={0.28} />
-                          <stop offset="100%" stopColor="#010066" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid stroke={grid} vertical={false} />
-                      <XAxis dataKey="bln" tick={{ fill: ink, fontSize: 12 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: ink, fontSize: 12 }} axisLine={false} tickLine={false} width={42} />
-                      <Tooltip content={<Tip />} />
-                      <Area dataKey="aduan" name="Masuk" stroke="#cc0001" fill="url(#masuk)" strokeWidth={2} />
-                      <Area dataKey="selesai" name="Selesai" stroke="#010066" fill="url(#siap)" strokeWidth={2} />
-                    </AreaChart>
-                  </ResponsiveContainer>
+              <section className="card">
+                <h2>Keluar undi</h2>
+                <p className="quiet">Perbandingan PRN</p>
+                <div className="gauge-row">
+                  <RadialGauge pct={MACHAP.keluarPrn23} label="Keluar PRN '23" />
+                  <RadialGauge pct={MACHAP.keluarPrn18} label="Keluar PRN '18" tone="warm" />
                 </div>
               </section>
-
               <section className="card">
-                <h2>Kerusi BN</h2>
-                <p className="quiet">48 daripada 56 DUN</p>
-                <div className="seat-row">
-                  <div className="chart donut" role="img" aria-label="UMNO 37 kerusi, MCA 8, MIC 3">
-                    <ResponsiveContainer width="100%" height={150}>
-                      <PieChart>
-                        <Pie data={PARTI_SEATS} dataKey="value" innerRadius={46} outerRadius={68} stroke="none">
-                          {PARTI_SEATS.map((e) => <Cell key={e.name} fill={e.color} />)}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
+                <h2>Demografi pengundi</h2>
+                <div className="gender-block">
+                  <div className="gender-row">
+                    <div className="gender-head"><span>Wanita</span><b>{MACHAP.wanita}%</b></div>
+                    <div className="gender-bar"><span className="is-wanita" style={{ width: `${MACHAP.wanita}%` }} /></div>
                   </div>
-                  <div className="seat-list">
-                    {PARTI_SEATS.map((p) => (
-                      <div key={p.name}>
-                        <div className="row-between">
-                          <span>{p.name}</span>
-                          <b>{p.value}</b>
-                        </div>
-                        <Meter value={p.value} max={48} tone={p.name === "UMNO" ? "warm" : p.name === "MCA" ? "low" : "mid"} />
-                      </div>
-                    ))}
+                  <div className="gender-row">
+                    <div className="gender-head"><span>Lelaki</span><b>{MACHAP.lelaki}%</b></div>
+                    <div className="gender-bar"><span className="is-lelaki" style={{ width: `${MACHAP.lelaki}%` }} /></div>
                   </div>
+                </div>
+                <h3 className="quiet" style={{ marginTop: 20 }}>Trend keluar undi</h3>
+                <div className="turnout-pills">
+                  {TURNOUT_HISTORY.map((t) => (
+                    <div key={t.label} className="turnout-pill">
+                      <b>{t.pct}%</b>
+                      <span>{t.label}</span>
+                    </div>
+                  ))}
                 </div>
               </section>
             </div>
-
-            <section className="card" role="img" aria-label="Jumlah aduan mengikut bahagian">
-              <h2>Aduan mengikut bahagian</h2>
-              <div className="chart">
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={byDiv} margin={{ left: 0, right: 8, top: 12, bottom: 0 }}>
-                    <CartesianGrid stroke={grid} vertical={false} />
-                    <XAxis dataKey="label" tick={{ fill: ink, fontSize: 11 }} axisLine={false} tickLine={false} interval={0} />
-                    <YAxis tick={{ fill: ink, fontSize: 12 }} axisLine={false} tickLine={false} width={42} />
-                    <Tooltip content={<Tip />} />
-                    <Bar dataKey="aduan" name="Aduan" fill="#010066" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </section>
           </div>
         )}
 
-        {tab === "adun" && (
-          <div className="stack">
-            <div className="filters">
-              <label className="search">
-                <Icon name="search" size={18} />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cari nama atau DUN"
-                  aria-label="Cari nama atau DUN"
-                  type="search"
-                  className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0"
-                />
-              </label>
-              <Select value={divisi} onValueChange={setDivisi}>
-                <SelectTrigger className="h-11 w-auto min-w-36" aria-label="Bahagian"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {DIVISI.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={parti} onValueChange={setParti}>
-                <SelectTrigger className="h-11 w-auto min-w-28" aria-label="Parti"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PARTI_LIST.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger className="h-11 w-auto min-w-32" aria-label="Susunan"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {SORTS.map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Tabs value={view} onValueChange={setView}>
-                <TabsList className="h-11">
-                  <TabsTrigger value="grid">Kad</TabsTrigger>
-                  <TabsTrigger value="list">Senarai</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <p className="count">{filtered.length} daripada 48</p>
-            </div>
-            {filtered.length === 0 ? (
-              <div className="empty">
-                <h2>Tiada ADUN sepadan</h2>
-                <p>Cuba nama lain, atau set semula bahagian dan parti kepada Semua.</p>
-                <Button type="button" onClick={() => { setSearch(""); setDivisi("Semua"); setParti("Semua"); }}>
-                  Set semula penapis
-                </Button>
-              </div>
-            ) : view === "grid" ? (
-              <div className="adun-grid">
-                {filtered.map((a) => <AdunCard key={a.id} a={a} onOpen={openAdun} />)}
-              </div>
-            ) : (
-              <div className="list">
-                {filtered.map((a) => <AdunRow key={a.id} a={a} onOpen={openAdun} />)}
-              </div>
-            )}
-          </div>
-        )}
+        {tab === "demografi" && <DemografiPage ink={ink} grid={grid} />}
 
-        {tab === "ranking" && (
-          <div className="stack">
-            <div className="split">
-              <section className="card">
-                <h2>Prestasi terbaik</h2>
-                <ol className="rank">
-                  {top5.map((a, i) => (
-                    <li key={a.id}>
-                      <button type="button" onClick={() => openAdun(a)}>
-                        <span className="rank-no">{i + 1}</span>
-                        <span className="cell-copy">
-                          <span className="cell-title">{a.nama}</span>
-                          <span className="cell-sub">{a.dun}</span>
-                        </span>
-                        <span className="cell-trail">
-                          <b className={`tone-${rTone(a.rating)}`}>{a.rating.toFixed(1)}</b>
-                          <span className="cell-sub">{pctOf(a)}% siap</span>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-              <section className="card">
-                <h2>Perlu perhatian</h2>
-                <ol className="rank">
-                  {bot5.map((a, i) => (
-                    <li key={a.id}>
-                      <button type="button" onClick={() => openAdun(a)}>
-                        <span className="rank-no">{i + 1}</span>
-                        <span className="cell-copy">
-                          <span className="cell-title">{a.nama}</span>
-                          <span className="cell-sub">{a.dun}</span>
-                        </span>
-                        <span className="cell-trail">
-                          <b className={`tone-${rTone(a.rating)}`}>{a.rating.toFixed(1)}</b>
-                          <span className="cell-sub">{pctOf(a)}% siap</span>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            </div>
-            <section className="card table-card">
-              <h2>Semua 48 ADUN</h2>
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      {["#", "DUN", "Nama", "Parti", "Aduan", "Selesai", "Rating", "Trend"].map((h) => <th key={h} scope="col">{h}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ranked.map((a, i) => {
-                      const pct = pctOf(a);
-                      return (
-                        <tr key={a.id} className={a.isMB ? "is-mb" : undefined}>
-                          <td>{i + 1}</td>
-                          <td>{a.dun}</td>
-                          <td>
-                            <button type="button" className="linkish" onClick={() => openAdun(a)}>{a.nama}</button>
-                          </td>
-                          <td><Tag parti={a.parti}>{a.parti}</Tag></td>
-                          <td>{a.aduan}</td>
-                          <td>
-                            <span className="table-meter">
-                              <Meter value={pct} tone={pctTone(pct)} />
-                              <span>{pct}%</span>
-                            </span>
-                          </td>
-                          <td className={`tone-${rTone(a.rating)}`}>{a.rating.toFixed(1)}</td>
-                          <td><Trend value={a.trend} /></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        )}
+        {tab === "sokongan" && <SokonganPage ink={ink} grid={grid} />}
 
-        {tab === "kritikal" && (
-          <div className="stack">
-            <section className="card notice">
-              <h2>Kawasan yang perlu perhatian segera</h2>
-              <p>ADUN dengan 3 hotspot atau lebih. Buka satu baris untuk lihat aduan, program, dan kadar selesai.</p>
-            </section>
-            <div className="list">
-              {critical.map((a, i) => (
-                <button key={a.id} type="button" className="cell cell-alert" onClick={() => openAdun(a)}>
-                  <span className="rank-no">{i + 1}</span>
-                  <span className="cell-copy">
-                    <span className="cell-title">{a.nama}</span>
-                    <span className="cell-sub">{a.dun} · {a.div}</span>
-                  </span>
-                  <span className="mini-stats">
-                    <span><b>{a.hotspot}</b> hotspot</span>
-                    <span><b>{a.aduan}</b> aduan</span>
-                    <span><b>{a.rating.toFixed(1)}</b> rating</span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {tab === "aduan" && <AduanPage ink={ink} grid={grid} />}
 
-        {tab === "bahagian" && (
-          <div className="bahagian-grid">
-            {DIVISI.slice(1).filter((d) => ALL_ADUN.some((a) => a.div === d)).map((d) => {
-              const members = ALL_ADUN.filter((a) => a.div === d);
-              const aduan = sum(members, "aduan");
-              const siap = sum(members, "siap");
-              const hot = sum(members, "hotspot");
-              const avg = (sum(members, "rating") / members.length).toFixed(1);
-              const pct = Math.round((siap / aduan) * 100);
-              const counts = ["UMNO", "MCA", "MIC"].map((p) => [p, members.filter((a) => a.parti === p).length]).filter(([, n]) => n > 0);
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  className="card bahagian"
-                  onClick={() => { setDivisi(d); setParti("Semua"); go("adun"); }}
-                >
-                  <span className="row-between">
-                    <span>
-                      <span className="quiet">Bahagian</span>
-                      <span className="bahagian-name">{d}</span>
-                    </span>
-                    <span className="bahagian-count">{members.length}<small>ADUN</small></span>
-                  </span>
-                  <span className="stat3">
-                    <span><b>{fmt(aduan)}</b><small>Aduan</small></span>
-                    <span><b>{hot}</b><small>Hotspot</small></span>
-                    <span><b>{avg}</b><small>Rating</small></span>
-                  </span>
-                  <span className="adun-meter">
-                    <Meter value={pct} tone={pctTone(pct)} />
-                    <span>{pct}%</span>
-                  </span>
-                  <span className="tag-row">
-                    {counts.map(([p, n]) => <Tag key={p} parti={p}>{p} {n}</Tag>)}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        )}
+        {tab === "petugas" && <PetugasPage />}
 
-        {tab === "bantuan" && (
-          <section className="card prose">
-            <h2>Cara guna papan pemuka ini</h2>
-            <ol>
-              <li>Gambaran menunjukkan aduan selesai dan kawasan yang perlu disemak dahulu.</li>
-              <li>ADUN membolehkan carian mengikut nama, DUN, bahagian, atau parti.</li>
-              <li>Buka mana-mana ADUN untuk lihat hotspot, program, dan kadar selesai.</li>
-              <li>Kritikal menyenaraikan DUN dengan 3 hotspot atau lebih.</li>
-              <li>Bahagian membuka senarai ADUN bagi bahagian itu.</li>
-            </ol>
-          </section>
-        )}
+        {tab === "hotspot" && <HotspotPage />}
 
-        {tab === "panduan" && (
-          <section className="card prose">
-            <h2>Apa yang nombor ini maksudkan</h2>
-            <dl className="facts">
-              <div><dt>Aduan</dt><dd>Jumlah aduan rakyat yang diterima DUN itu.</dd></div>
-              <div><dt>Selesai</dt><dd>Aduan yang sudah ditutup. Peratus ialah selesai dibahagi jumlah aduan.</dd></div>
-              <div><dt>Hotspot</dt><dd>Kawasan dalam DUN yang masih aktif dan perlu lawatan.</dd></div>
-              <div><dt>Rating</dt><dd>Purata prestasi ADUN. 4.7 ke atas dikira baik.</dd></div>
-              <div><dt>Program</dt><dd>Program komuniti yang sedang berjalan.</dd></div>
-              <div><dt>Projek</dt><dd>Projek negeri yang berkaitan dengan DUN itu.</dd></div>
-            </dl>
-          </section>
-        )}
+        {tab === "projek" && <ProjekPage />}
+
+        {tab === "program" && <ProgramPage />}
+
+        {tab === "bantuan" && <BantuanPage />}
         </div>
       </main>
 
