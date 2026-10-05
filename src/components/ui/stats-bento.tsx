@@ -1,3 +1,4 @@
+import { SegmentedStatStrip } from "@/components/ui/segmented-stat-strip";
 import { MACHAP, MACHAP_ADUAN_MONTHLY, fmt } from "@/data.js";
 import { cn } from "cn";
 import { CheckCircle2, Flame, Heart, Megaphone, Star } from "lucide-react";
@@ -22,9 +23,12 @@ export function StatsBento({ className }: StatsBentoProps) {
       className={cn("stats-bento w-full", className)}
       aria-label="Petunjuk utama DUN"
     >
-      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-6 md:grid-rows-2 md:gap-3">
+      <div
+        className="grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4 md:grid-rows-1"
+        aria-label="Ringkasan kawasan"
+      >
         <div
-          className="relative flex flex-col justify-between gap-2 overflow-hidden rounded-xl bg-primary p-3.5 md:col-span-2 md:row-span-1 md:p-4"
+          className="relative flex min-h-0 flex-col justify-center gap-1.5 bg-primary p-3.5 md:p-4"
         >
           <div
             className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(45deg,#808080_0px_1px,transparent_1px_8px)] opacity-25 mask-[radial-gradient(ellipse_70%_45%_at_100%_0%,#000_70%,transparent_110%)]"
@@ -39,12 +43,12 @@ export function StatsBento({ className }: StatsBentoProps) {
             </h3>
             <p className="mt-0.5 text-[11px] font-medium text-primary-foreground/80">Pengundi DUN</p>
           </div>
-          <p className="relative line-clamp-2 text-[10px] leading-snug text-primary-foreground/55">
+          <p className="relative line-clamp-2 text-[10px] leading-snug text-primary-foreground/55 md:line-clamp-1">
             Ringkasan pengundi berdaftar dan aktiviti khidmat untuk kawasan {MACHAP.dun} · {MACHAP.parlimen}.
           </p>
         </div>
 
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted p-3.5 md:col-span-4 md:p-4">
+        <div className="flex items-center justify-between gap-2 bg-muted p-3.5 md:p-4">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
               Sokongan BN
@@ -65,13 +69,13 @@ export function StatsBento({ className }: StatsBentoProps) {
           </div>
         </div>
 
-        <div className="flex flex-col justify-center rounded-xl border border-border bg-card px-3 py-2.5 text-center md:col-span-2 md:py-3">
+        <div className="flex flex-col justify-center bg-card px-3 py-2.5 text-center md:py-3">
           <Flame className="mx-auto mb-0.5 size-4 text-[#cc0001]" aria-hidden />
           <p className="font-[family-name:var(--font-heading)] text-xl leading-none text-foreground">{MACHAP.hotspot}</p>
           <p className="mt-0.5 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">Hotspot</p>
         </div>
 
-        <div className="flex items-center gap-2.5 rounded-xl bg-muted p-3.5 md:col-span-4 md:px-4 md:py-3">
+        <div className="flex items-center gap-2 bg-muted p-3.5 md:px-3 md:py-3">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background text-sm font-semibold text-foreground shadow-sm">
             ★
           </div>
@@ -84,25 +88,11 @@ export function StatsBento({ className }: StatsBentoProps) {
         </div>
       </div>
 
-      <div
-        className="mt-2.5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:mt-3 md:grid-cols-4"
-        role="list"
+      <SegmentedStatStrip
+        className="mt-2.5 md:mt-3"
         aria-label="Ringkasan prestasi"
-      >
-        {tiles.map(({ label, value, icon: Icon }) => (
-          <div
-            key={label}
-            role="listitem"
-            className="flex flex-col justify-center bg-card p-3.5 md:p-4"
-          >
-            <Icon className="mb-1 size-3.5 text-muted-foreground" aria-hidden />
-            <p className="font-[family-name:var(--font-heading)] text-lg leading-tight tracking-tight text-foreground md:text-xl">
-              {value}
-            </p>
-            <p className="mt-0.5 text-[10px] font-medium text-muted-foreground">{label}</p>
-          </div>
-        ))}
-      </div>
+        items={tiles}
+      />
     </section>
   );
 }

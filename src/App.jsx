@@ -26,7 +26,20 @@ import {
   MACHAP_ADUAN_MONTHLY, PETUGAS, SUPPORT_TREND, TURNOUT_HISTORY,
   fmt, pctOf, pctTone,
 } from "./data.js";
+import { SegmentedStatStrip } from "@/components/ui/segmented-stat-strip";
 import { StatsBento } from "@/components/ui/stats-bento";
+import {
+  BarChart3,
+  CheckCircle2,
+  ClipboardCheck,
+  Coins,
+  FileText,
+  Flag,
+  TrendingUp,
+  UserX,
+  Users,
+  Vote,
+} from "lucide-react";
 import { CardMarker } from "./components/CardMarker.jsx";
 import { LabeledProgress } from "./components/LabeledProgress.jsx";
 import { Icon } from "./icons.jsx";
@@ -98,9 +111,9 @@ function MbBanner({ onOpen }) {
   const mb = ALL_ADUN.find((a) => a.isMB);
   return (
     <section className="mb-banner mb-banner-top" aria-label="Profil YAB Menteri Besar">
-      <Avatar className="size-14 shrink-0 ring-2 ring-background">
+      <Avatar className="mb-banner-avatar size-10 shrink-0 ring-2 ring-background md:size-14">
         <AvatarImage src={MB_AVATAR_SRC} alt="YAB Dato' Onn Hafiz bin Ghazi" />
-        <AvatarFallback className="bg-[#010066] text-[#ffcc00] text-sm font-bold">OH</AvatarFallback>
+        <AvatarFallback className="bg-[#010066] text-[#ffcc00] text-[10px] font-bold md:text-sm">OH</AvatarFallback>
       </Avatar>
       <div className="mb-banner-copy">
         <p className="mb-banner-name">YAB Dato&apos; Onn Hafiz bin Ghazi</p>
@@ -108,13 +121,18 @@ function MbBanner({ onOpen }) {
           Menteri Besar Johor · {MACHAP.dun} · {MACHAP.parlimen}
         </p>
         <div className="mb-banner-tags">
-          <Badge variant="secondary" className="border-transparent bg-[#fff4c2] text-[#6b5400]">MB Johor</Badge>
-          <Badge variant="secondary" className="border-transparent bg-[var(--fill)] text-[var(--copy)]">{MACHAP.dun}</Badge>
-          <Badge variant="secondary" className="border-transparent bg-[var(--fill)] text-[var(--copy)]">{MACHAP.parlimen}</Badge>
+          <Badge variant="secondary" className="mb-banner-badge border-transparent bg-[#fff4c2] text-[#6b5400]">MB Johor</Badge>
+          <Badge variant="secondary" className="mb-banner-badge border-transparent bg-[var(--fill)] text-[var(--copy)]">{MACHAP.dun}</Badge>
+          <Badge variant="secondary" className="mb-banner-badge border-transparent bg-[var(--fill)] text-[var(--copy)]">{MACHAP.parlimen}</Badge>
         </div>
       </div>
       {mb ? (
-        <Button type="button" variant="outline" className="mb-banner-action h-10 shrink-0 rounded-xl px-4" onClick={() => onOpen(mb)}>
+        <Button
+          type="button"
+          variant="outline"
+          className="mb-banner-action h-8 shrink-0 rounded-lg px-3 text-xs md:h-10 md:rounded-xl md:px-4 md:text-sm"
+          onClick={() => onOpen(mb)}
+        >
           Profil DUN
         </Button>
       ) : null}
@@ -269,15 +287,16 @@ function SokonganPage({ ink, grid }) {
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="sokongan-summary" role="list">
-          {SUPPORT_TREND.map((row) => (
-            <div key={row.prn} className="sokongan-summary-card" role="listitem">
-              <span className="quiet">{row.prn}</span>
-              <b>{row.bn}%</b>
-              <span className="sokongan-summary-party">BN/UMNO</span>
-            </div>
-          ))}
-        </div>
+        <SegmentedStatStrip
+          className="mt-4"
+          columns={3}
+          aria-label="Ringkasan sokongan BN mengikut PRN"
+          items={SUPPORT_TREND.map((row, i) => ({
+            value: `${row.bn}%`,
+            label: `${row.prn} · BN/UMNO`,
+            icon: [Flag, BarChart3, TrendingUp][i] ?? Flag,
+          }))}
+        />
       </section>
     </div>
   );
@@ -351,13 +370,6 @@ function AduanPage({ ink, grid }) {
 }
 
 function BantuanPage() {
-  const summary = [
-    { icon: "people", label: "Penerima Bantuan", value: fmt(MACHAP.penerimaBantuan), tone: "blue" },
-    { icon: "coins", label: "Jumlah Diagih", value: BANTUAN_RINGKASAN.jumlahDiagih, tone: "gold", highlight: true },
-    { icon: "file", label: "Jenis Bantuan", value: String(BANTUAN_RINGKASAN.jenisBantuan), tone: "green" },
-    { icon: "check", label: "% Diagih", value: `${BANTUAN_RINGKASAN.pctDiagih}%`, tone: "ink" },
-  ];
-
   return (
     <div className="stack bantuan-page">
       <KpiStrip />
@@ -368,17 +380,15 @@ function BantuanPage() {
           <p className="quiet">Rekod bantuan &amp; kebajikan — kawasan {MACHAP.dun} 2024</p>
         </div>
       </header>
-      <div className="bantuan-summary">
-        {summary.map((item) => (
-          <div key={item.label} className={`bantuan-summary-card is-${item.tone}${item.highlight ? " is-highlight" : ""}`}>
-            <span className="bantuan-summary-icon" aria-hidden>
-              <Icon name={item.icon} size={22} />
-            </span>
-            <b>{item.value}</b>
-            <span>{item.label}</span>
-          </div>
-        ))}
-      </div>
+      <SegmentedStatStrip
+        aria-label="Ringkasan agihan bantuan"
+        items={[
+          { label: "Penerima Bantuan", value: fmt(MACHAP.penerimaBantuan), icon: Users },
+          { label: "Jumlah Diagih", value: BANTUAN_RINGKASAN.jumlahDiagih, icon: Coins },
+          { label: "Jenis Bantuan", value: String(BANTUAN_RINGKASAN.jenisBantuan), icon: FileText },
+          { label: "% Diagih", value: `${BANTUAN_RINGKASAN.pctDiagih}%`, icon: CheckCircle2 },
+        ]}
+      />
       <section className="bantuan-panel" aria-label="Senarai bantuan">
         <div className="bantuan-table-wrap">
           <table className="bantuan-table">
@@ -762,24 +772,16 @@ export default function App() {
             <KpiStrip />
             <section className="card">
               <h2>Statistik Pengundi</h2>
-              <div className="stat4" style={{ marginTop: 16 }}>
-                <div className="stat4-card">
-                  <b>{fmt(MACHAP.pengundi)}</b>
-                  <span>Jumlah Pengundi</span>
-                </div>
-                <div className="stat4-card">
-                  <b>{fmt(MACHAP.berdaftarSpr)}</b>
-                  <span>Berdaftar SPR</span>
-                </div>
-                <div className="stat4-card">
-                  <b>{fmt(MACHAP.belumDaftar)}</b>
-                  <span>Belum Daftar Est.</span>
-                </div>
-                <div className="stat4-card">
-                  <b>{MACHAP.keluarPrn23}%</b>
-                  <span>Keluar PRN &apos;23</span>
-                </div>
-              </div>
+              <SegmentedStatStrip
+                className="mt-4"
+                aria-label="Statistik pengundi"
+                items={[
+                  { label: "Jumlah Pengundi", value: fmt(MACHAP.pengundi), icon: Users },
+                  { label: "Berdaftar SPR", value: fmt(MACHAP.berdaftarSpr), icon: ClipboardCheck },
+                  { label: "Belum Daftar Est.", value: fmt(MACHAP.belumDaftar), icon: UserX },
+                  { label: "Keluar PRN '23", value: `${MACHAP.keluarPrn23}%`, icon: Vote },
+                ]}
+              />
             </section>
             <div className="charts">
               <section className="card">
@@ -803,14 +805,16 @@ export default function App() {
                   </div>
                 </div>
                 <h3 className="quiet" style={{ marginTop: 20 }}>Trend keluar undi</h3>
-                <div className="turnout-pills">
-                  {TURNOUT_HISTORY.map((t) => (
-                    <div key={t.label} className="turnout-pill">
-                      <b>{t.pct}%</b>
-                      <span>{t.label}</span>
-                    </div>
-                  ))}
-                </div>
+                <SegmentedStatStrip
+                  className="mt-2"
+                  columns={3}
+                  aria-label="Trend keluar undi PRN"
+                  items={TURNOUT_HISTORY.map((t, i) => ({
+                    value: `${t.pct}%`,
+                    label: t.label,
+                    icon: [Vote, BarChart3, TrendingUp][i] ?? Vote,
+                  }))}
+                />
               </section>
             </div>
           </div>
