@@ -3,7 +3,13 @@ import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar-1";
+import {
+  AvatarStack,
+  MB_AVATAR_SRC,
+  STOCK_AVATARS,
+  initialsFromName,
+} from "@/components/ui/avatar-stack";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +26,7 @@ import {
   MACHAP_ADUAN_MONTHLY, PETUGAS, SUPPORT_TREND, TURNOUT_HISTORY,
   fmt, pctOf, pctTone,
 } from "./data.js";
+import { StatsBento } from "@/components/ui/stats-bento";
 import { CardMarker } from "./components/CardMarker.jsx";
 import { LabeledProgress } from "./components/LabeledProgress.jsx";
 import { Icon } from "./icons.jsx";
@@ -37,17 +44,6 @@ const NAV = [
 ];
 
 const TITLES = Object.fromEntries(NAV.map(({ id, label }) => [id, label]));
-
-const KPI_ITEMS = [
-  { icon: "box", value: () => fmt(MACHAP.pengundi), label: "Pengundi DUN" },
-  { icon: "chart", value: () => `${MACHAP.sokonganBn}%`, label: "Sokongan BN" },
-  { icon: "megaphone", value: () => fmt(MACHAP.aduan2024), label: "Aduan 2024" },
-  { icon: "check", value: () => `${MACHAP.pctSelesai}%`, label: "% Selesai" },
-  { icon: "crane", value: () => String(MACHAP.projekAktif), label: "Projek Aktif" },
-  { icon: "flame", value: () => String(MACHAP.hotspot), label: "Hotspot" },
-  { icon: "heart", value: () => fmt(MACHAP.penerimaBantuan), label: "Penerima Bantuan" },
-  { icon: "building", value: () => String(MACHAP.programAktif), label: "Program Aktif" },
-];
 
 function Tip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -95,24 +91,15 @@ function Trend({ value }) {
 }
 
 function KpiStrip() {
-  return (
-    <div className="kpi-strip" aria-label="Petunjuk utama DUN">
-      {KPI_ITEMS.map((item) => (
-        <div key={item.label} className="kpi">
-          <span className="kpi-icon" aria-hidden="true"><Icon name={item.icon} size={18} /></span>
-          <span className="kpi-val">{item.value()}</span>
-          <span className="kpi-label">{item.label}</span>
-        </div>
-      ))}
-    </div>
-  );
+  return <StatsBento className="mb-5" />;
 }
 
 function MbBanner({ onOpen }) {
   const mb = ALL_ADUN.find((a) => a.isMB);
   return (
     <section className="mb-banner mb-banner-top" aria-label="Profil YAB Menteri Besar">
-      <Avatar className="size-14 shrink-0">
+      <Avatar className="size-14 shrink-0 ring-2 ring-background">
+        <AvatarImage src={MB_AVATAR_SRC} alt="YAB Dato' Onn Hafiz bin Ghazi" />
         <AvatarFallback className="bg-[#010066] text-[#ffcc00] text-sm font-bold">OH</AvatarFallback>
       </Avatar>
       <div className="mb-banner-copy">
@@ -430,12 +417,20 @@ function PetugasPage() {
   return (
     <div className="stack petugas-page">
       <KpiStrip />
-      <header className="section-page-head">
+      <header className="section-page-head petugas-page-head">
         <Icon name="star" size={22} />
-        <div>
+        <div className="flex-1 min-w-0">
           <h2 className="section-page-title">Prestasi Petugas</h2>
           <p className="quiet">Penilaian Jun 2024 — kawasan DUN {MACHAP.dun.split(" ")[0]}</p>
         </div>
+        <AvatarStack
+          className="shrink-0"
+          people={PETUGAS.slice(0, 3).map((p, i) => ({
+            name: p.nama,
+            src: STOCK_AVATARS[i % STOCK_AVATARS.length],
+            initials: initialsFromName(p.nama),
+          }))}
+        />
       </header>
       <section className="petugas-panel" aria-label="Jadual prestasi petugas">
         <div className="petugas-table-wrap">
@@ -463,6 +458,13 @@ function PetugasPage() {
                       ) : (
                         <span className="petugas-medal-spacer" aria-hidden />
                       )}
+                      <Avatar className="size-9 shrink-0 ring-2 ring-background">
+                        <AvatarImage
+                          src={STOCK_AVATARS[(p.id - 1) % STOCK_AVATARS.length]}
+                          alt={p.nama}
+                        />
+                        <AvatarFallback>{initialsFromName(p.nama)}</AvatarFallback>
+                      </Avatar>
                       <span>{p.nama}</span>
                     </td>
                     <td className="petugas-peranan">{p.peranan}</td>
@@ -712,7 +714,8 @@ export default function App() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button type="button" className="user" aria-label="Onn H.">
-                <Avatar className="size-10">
+                <Avatar className="size-10 ring-2 ring-background">
+                  <AvatarImage src={MB_AVATAR_SRC} alt="Onn Hafiz" />
                   <AvatarFallback className="bg-[#010066] text-[#ffcc00] text-xs font-bold">OH</AvatarFallback>
                 </Avatar>
                 <span className="user-name">Onn H.</span>
@@ -747,7 +750,7 @@ export default function App() {
           <button type="button" onClick={() => go("bantuan")}>Bantuan</button>
         </div>
         <MbBanner onOpen={openAdun} />
-        {tab !== "demografi" && tab !== "sokongan" && tab !== "aduan" && tab !== "hotspot" && tab !== "projek" && tab !== "bantuan" && tab !== "program" && tab !== "petugas" ? (
+        {tab !== "pengundi" && tab !== "demografi" && tab !== "sokongan" && tab !== "aduan" && tab !== "hotspot" && tab !== "projek" && tab !== "bantuan" && tab !== "program" && tab !== "petugas" ? (
           <header className="page-head">
             <h1>{TITLES[tab]}</h1>
           </header>
