@@ -64,8 +64,7 @@ export const STOCK_AVATARS = [
   "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=128&h=128&fit=crop&crop=face",
 ];
 
-export const MB_AVATAR_SRC =
-  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=160&h=160&fit=crop&crop=face";
+export const MB_AVATAR_SRC = "/onn-hafiz.png";
 
 export function initialsFromName(nama: string) {
   return nama

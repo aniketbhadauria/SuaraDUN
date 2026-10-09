@@ -63,8 +63,8 @@ export const STATE_TREND = [
 
 export const PARTI_SEATS = [
   { name: "UMNO", value: 37, color: "#ffcc00" },
-  { name: "MCA", value: 8, color: "#cc0001" },
-  { name: "MIC", value: 3, color: "#010066" },
+  { name: "MCA", value: 8, color: "#d01228" },
+  { name: "MIC", value: 3, color: "#1c3480" },
 ];
 
 export const fmt = (n) => (typeof n === "number" ? n.toLocaleString("ms-MY") : n);
@@ -123,7 +123,7 @@ export const MACHAP_ADUAN_MONTHLY = [
 ];
 
 export const ADUAN_CATEGORIES = [
-  { label: "Jalan Kampung", count: 118, color: "#cc0001", icon: "road" },
+  { label: "Jalan Kampung", count: 118, color: "#d01228", icon: "road" },
   { label: "Kebersihan Pasar", count: 97, color: "#e87830", icon: "market" },
   { label: "Bantuan Kewangan", count: 88, color: "#e6b800", icon: "coins" },
   { label: "Pertanian & Tanah", count: 66, color: "#1a9e62", icon: "farm" },

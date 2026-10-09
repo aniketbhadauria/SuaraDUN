@@ -1,10 +1,10 @@
 :root {
   color-scheme: light;
-  --flag-blue: #010066;
-  --flag-red: #cc0001;
+  --flag-blue: #1c3480;
+  --flag-red: #d01228;
   --flag-yellow: #ffcc00;
-  --gradient-blue: #010066;
-  --gradient-red: #cc0001;
+  --gradient-blue: #1c3480;
+  --gradient-red: #d01228;
   --gradient-brand: linear-gradient(90deg, var(--gradient-blue) 0%, var(--gradient-red) 100%);
   --canvas: #f3f4f8;
   --rail: #ffffff;
@@ -12,10 +12,10 @@
   --glass-surface: #ffffff;
   --glass-border: #e8eaef;
   --ink: #10122a;
-  --ink-soft: #1a1d2e;
+  --ink-soft: #162456;
   --copy: #3d4570;
   --tertiary: #6d7596;
-  --line: rgba(1, 0, 102, 0.1);
+  --line: rgba(28, 52, 128, 0.1);
   --fill: #f3f5fb;
   --fill-2: #e4e8f4;
   --green: var(--flag-blue);
@@ -42,7 +42,7 @@
   --card-line: #e8eaef;
   --progress-track: #eceef4;
   --progress-fill: var(--gradient-brand);
-  --progress-fill-success: linear-gradient(90deg, #010066, #1a9e62);
+  --progress-fill-success: linear-gradient(90deg, var(--flag-blue), #1a9e62);
   --progress-fill-warn: var(--gradient-brand);
 }
 
@@ -243,7 +243,7 @@ b { font-weight: 650; }
   width: 44px; height: 44px; border-radius: 14px; flex: none;
   display: grid; place-items: center;
   background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
-  color: #1b5e20; border: 1px solid rgba(1, 0, 102, 0.08);
+  color: #1b5e20; border: 1px solid rgba(28, 52, 128, 0.08);
 }
 .dun-top-title { font-size: 18px; font-weight: 650; letter-spacing: -0.02em; }
 .dun-top-sub { color: var(--tertiary); font-size: 13px; margin-top: 2px; }
@@ -428,6 +428,8 @@ b { font-weight: 650; }
 }
 
 .mb-banner {
+  position: relative;
+  overflow: hidden;
   display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
   padding: 20px 22px; margin-bottom: 20px;
   border-radius: var(--card-radius);
@@ -435,6 +437,21 @@ b { font-weight: 650; }
   background: var(--surface);
   box-shadow: var(--card-shadow);
 }
+.mb-banner-art {
+  position: absolute;
+  right: 0;
+  top: -22px;
+  height: calc(100% + 22px);
+  width: min(46%, 320px);
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 34%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 34%);
+}
+.mb-banner-copy,
+.mb-banner-avatar,
+.mb-banner-action { position: relative; z-index: 1; }
 .mb-banner-action {
   border-radius: 999px !important;
   background: var(--ink-soft) !important;
@@ -913,7 +930,7 @@ b { font-weight: 650; }
 }
 @media (hover: hover) {
   .hotspot-item:hover {
-    border-color: rgba(1, 0, 102, 0.14);
+    border-color: rgba(28, 52, 128, 0.14);
   }
 }
 .hotspot-rank {
@@ -1056,7 +1073,7 @@ b { font-weight: 650; }
   border-radius: 26px;
   padding: 20px 20px 16px;
   background:
-    radial-gradient(90% 80% at 12% 0%, rgba(1, 0, 102, 0.16), transparent 58%),
+    radial-gradient(90% 80% at 12% 0%, rgba(28, 52, 128, 0.16), transparent 58%),
     radial-gradient(70% 60% at 92% 18%, rgba(204, 0, 1, 0.12), transparent 52%),
     radial-gradient(50% 40% at 70% 100%, rgba(255, 204, 0, 0.35), transparent 60%),
     linear-gradient(180deg, #f7f8fd 0%, #fffdf6 100%);
@@ -1140,8 +1157,8 @@ b { font-weight: 650; }
 }
 @media (hover: hover) {
   .rec:hover, .cell:hover, .rank button:hover, .bahagian:hover, .adun-card:hover {
-    border-color: rgba(1, 0, 102, 0.18);
-    box-shadow: 0 10px 28px rgba(1, 0, 102, 0.07);
+    border-color: rgba(28, 52, 128, 0.18);
+    box-shadow: 0 10px 28px rgba(28, 52, 128, 0.07);
   }
 }
 .avatar {
@@ -1151,7 +1168,7 @@ b { font-weight: 650; }
 .avatar-UMNO { background: #fff4c2; color: #6b5400; }
 .avatar-MCA { background: #ffe4e4; color: var(--flag-red); }
 .avatar-MIC { background: #e6e8f8; color: var(--flag-blue); }
-.avatar-photo { background: linear-gradient(160deg, #010066, #24308a); color: var(--flag-yellow); font-size: 13px; font-weight: 700; }
+.avatar-photo { background: linear-gradient(160deg, var(--flag-blue), #2a4494); color: var(--flag-yellow); font-size: 13px; font-weight: 700; }
 .cell-copy { display: grid; gap: 2px; min-width: 0; flex: 1; }
 .cell-title, .adun-name, .bahagian-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cell-trail { display: grid; justify-items: end; gap: 2px; font-variant-numeric: tabular-nums; }

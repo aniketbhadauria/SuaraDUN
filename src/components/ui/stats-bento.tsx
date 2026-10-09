@@ -62,7 +62,7 @@ export function StatsBento({ className }: StatsBentoProps) {
             {aduanBars.map((n, i) => (
               <div
                 key={i}
-                className="w-1 rounded-full bg-gradient-to-t from-[#010066] to-[#cc0001]"
+                className="w-1 rounded-full bg-gradient-to-t from-[#1c3480] to-[#d01228]"
                 style={{ height: `${Math.round((n / maxAduan) * 100)}%`, minHeight: "12%" }}
               />
             ))}
@@ -70,7 +70,7 @@ export function StatsBento({ className }: StatsBentoProps) {
         </div>
 
         <div className="flex flex-col justify-center bg-card px-3 py-2.5 text-center md:py-3">
-          <Flame className="mx-auto mb-0.5 size-4 text-[#cc0001]" aria-hidden />
+          <Flame className="mx-auto mb-0.5 size-4 text-[#d01228]" aria-hidden />
           <p className="font-[family-name:var(--font-heading)] text-xl leading-none text-foreground">{MACHAP.hotspot}</p>
           <p className="mt-0.5 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">Hotspot</p>
         </div>

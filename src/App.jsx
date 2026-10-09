@@ -85,9 +85,9 @@ function Tag({ children, parti }) {
   const tone = parti === "UMNO"
     ? "border-transparent bg-[#fff4c2] text-[#6b5400]"
     : parti === "MCA"
-      ? "border-transparent bg-[#ffe4e4] text-[#cc0001]"
+      ? "border-transparent bg-[#ffe4e4] text-[#d01228]"
       : parti === "MIC"
-        ? "border-transparent bg-[#e6e8f8] text-[#010066]"
+        ? "border-transparent bg-[#e6e8f8] text-[#1c3480]"
         : "";
   return <Badge variant="secondary" className={tone}>{children}</Badge>;
 }
@@ -107,13 +107,12 @@ function KpiStrip() {
   return <StatsBento className="mb-5" />;
 }
 
-function MbBanner({ onOpen }) {
-  const mb = ALL_ADUN.find((a) => a.isMB);
+function MbBanner() {
   return (
     <section className="mb-banner mb-banner-top" aria-label="Profil YAB Menteri Besar">
       <Avatar className="mb-banner-avatar size-10 shrink-0 ring-2 ring-background md:size-14">
-        <AvatarImage src={MB_AVATAR_SRC} alt="YAB Dato' Onn Hafiz bin Ghazi" />
-        <AvatarFallback className="bg-[#010066] text-[#ffcc00] text-[10px] font-bold md:text-sm">OH</AvatarFallback>
+        <AvatarImage src={MB_AVATAR_SRC} alt="YAB Dato' Onn Hafiz bin Ghazi" className="object-[center_18%]" />
+        <AvatarFallback className="bg-[#1c3480] text-[#ffcc00] text-[10px] font-bold md:text-sm">OH</AvatarFallback>
       </Avatar>
       <div className="mb-banner-copy">
         <p className="mb-banner-name">YAB Dato&apos; Onn Hafiz bin Ghazi</p>
@@ -126,16 +125,7 @@ function MbBanner({ onOpen }) {
           <Badge variant="secondary" className="mb-banner-badge border-transparent bg-[var(--fill)] text-[var(--copy)]">{MACHAP.parlimen}</Badge>
         </div>
       </div>
-      {mb ? (
-        <Button
-          type="button"
-          variant="outline"
-          className="mb-banner-action h-8 shrink-0 rounded-lg px-3 text-xs md:h-10 md:rounded-xl md:px-4 md:text-sm"
-          onClick={() => onOpen(mb)}
-        >
-          Profil DUN
-        </Button>
-      ) : null}
+      <img src="/flag-skyline.png" alt="" className="mb-banner-art" aria-hidden="true" />
     </section>
   );
 }
@@ -279,9 +269,9 @@ function SokonganPage({ ink, grid }) {
                 type="monotone"
                 dataKey="ph"
                 name="ph"
-                stroke="#cc0001"
+                stroke="#d01228"
                 strokeWidth={2.5}
-                dot={{ r: 5, fill: "#cc0001", strokeWidth: 0 }}
+                dot={{ r: 5, fill: "#d01228", strokeWidth: 0 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>
@@ -689,7 +679,7 @@ export default function App() {
   const go = (id) => setTab(id);
 
   const ink = "#6d7596";
-  const grid = "rgba(1,0,102,0.08)";
+  const grid = "rgba(28,52,128,0.08)";
 
   return (
     <TooltipProvider>
@@ -726,8 +716,8 @@ export default function App() {
             <DropdownMenuTrigger asChild>
               <button type="button" className="user" aria-label="Onn H.">
                 <Avatar className="size-7 ring-2 ring-background md:size-7">
-                  <AvatarImage src={MB_AVATAR_SRC} alt="Onn Hafiz" />
-                  <AvatarFallback className="bg-[#010066] text-[#ffcc00] text-xs font-bold">OH</AvatarFallback>
+                  <AvatarImage src={MB_AVATAR_SRC} alt="Onn Hafiz" className="object-[center_18%]" />
+                  <AvatarFallback className="bg-[#1c3480] text-[#ffcc00] text-xs font-bold">OH</AvatarFallback>
                 </Avatar>
                 <span className="user-name">Onn H.</span>
                 <Icon name="chevron" size={16} />
@@ -763,7 +753,7 @@ export default function App() {
           <span className="mobile-head-dun">{MACHAP.dunShort}</span>
           <button type="button" onClick={() => go("bantuan")}>Bantuan</button>
         </div>
-        <MbBanner onOpen={openAdun} />
+        <MbBanner />
         {tab !== "pengundi" && tab !== "demografi" && tab !== "sokongan" && tab !== "aduan" && tab !== "hotspot" && tab !== "projek" && tab !== "bantuan" && tab !== "program" && tab !== "petugas" ? (
           <header className="page-head">
             <h1>{TITLES[tab]}</h1>
